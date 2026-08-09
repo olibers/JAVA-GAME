@@ -115,6 +115,20 @@ public class Player extends Entity {
             gp.tileM.currentMap = 3;
             x = gp.tileSize * (gp.maxScreenCol - 2);
         }
+
+        // Check for map transition on Map 5
+if (gp.tileM.currentMap == 5) {
+    int playerCol = x / gp.tileSize;
+    int playerRow = y / gp.tileSize;
+    
+    // Check if player is standing on the green grass exit tile at the bottom right
+    // (Adjust these column and row numbers to match your exact exit tile location)
+    if (playerCol >= 43 && playerCol <= 46 && playerRow >= 11) {
+        gp.tileM.currentMap = 7;          // Switch to your new Map 7
+        x = gp.tileSize * 7;              // Spawn player at X coordinate on Map 7
+        y = gp.tileSize * 2;              // Spawn player at Y coordinate on Map 7
+    }
+}
     }
  
     public void getPlayerImage() {

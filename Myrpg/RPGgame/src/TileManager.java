@@ -232,6 +232,26 @@ public class TileManager {
         for (int c = 7; c <= 8; c++) {
             mapTileNum[6][c][gp.maxScreenRow - 1] = 12; 
         }
+
+        // --- MAP 7: New Destination Map ---
+        int map7Cols = gp.maxScreenCol;
+        mapTileNum[7] = new int[map7Cols][gp.maxScreenRow];
+
+        for (int c = 0; c < map7Cols; c++) {
+            for (int r = 0; r < gp.maxScreenRow; r++) {
+                // Set solid tree borders around the edges, grass (0) on the inside
+                if (c == 0 || c == map7Cols - 1 || r == 0 || r == gp.maxScreenRow - 1) {
+                    mapTileNum[7][c][r] = 1; // Solid tree border
+                } else {
+                    mapTileNum[7][c][r] = 0; // Open grass floor
+                }
+            }
+        }
+        
+        // Create an entrance path at the top or left so the player doesn't spawn inside a wall
+        for (int c = 7; c <= 8; c++) {
+            mapTileNum[7][c][0] = 12; // Path tile leading back or into the room
+        }
     }
 
     public void draw(Graphics2D g2) {
