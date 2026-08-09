@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.InputStream;
 import javax.imageio.ImageIO;
-import java.awt.RenderingHints;
+
 
 public class TileManager {
 
@@ -25,6 +25,8 @@ public class TileManager {
 
     public void getTileImage() {
 
+        
+
         tile[20] = new Tile();
         tile[20].image = loadTexture("/assets/tiles/water.png", "assets/tiles/water.png", Color.BLUE); // Or a custom flood asset
         tile[20].collision = false;
@@ -32,10 +34,6 @@ public class TileManager {
         tile[0] = new Tile();
         tile[0].image = loadTexture("/assets/tiles/grass.png", "assets/tiles/grass.png", Color.GREEN);
         tile[0].collision = false;
-
-        tile[1] = new Tile();
-        tile[1].image = loadTexture("/assets/tiles/fallentree.png", "assets/tiles/fallentree.png", Color.black);
-        tile[1].collision = true;
 
         tile[1] = new Tile();
         tile[1].image = loadTexture("/assets/tiles/tree.png", "assets/tiles/tree.png", Color.DARK_GRAY);
@@ -82,32 +80,8 @@ public class TileManager {
         gPath.dispose();
         tile[12].collision = false;
 
-        // Index 14: Horizontal Fallen Tree (Rotated 90 degrees)
-    tile[14] = new Tile();
-    try {
-        BufferedImage originalTree = ImageIO.read(getClass().getResourceAsStream("/assets/tiles/fallentree.png"));
-        if (originalTree != null) {
-            // Rotate the image 90 degrees to make it horizontal
-            int w = originalTree.getWidth();
-            int h = originalTree.getHeight();
-            BufferedImage rotatedImage = new BufferedImage(h, w, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D gRot = rotatedImage.createGraphics();
-            gRot.rotate(Math.toRadians(90), h / 2.0, w / 2.0);
-            gRot.drawImage(originalTree, 0, 0, null);
-            gRot.dispose();
+    }
 
-            // Scale cleanly to tile size
-            tile[14].image = new BufferedImage(gp.tileSize, gp.tileSize, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D gTree = tile[14].image.createGraphics();
-            gTree.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-            gTree.drawImage(rotatedImage, 0, 0, gp.tileSize, gp.tileSize, null);
-            gTree.dispose();
-            }
-        } catch (Exception e) {
-                e.printStackTrace();
-    }   
-    tile[14].collision = true;
-}
     private BufferedImage loadTexture(String resourcePath, String filePath, Color fallbackColor) {
         BufferedImage img = null;
 
@@ -221,33 +195,25 @@ public class TileManager {
         }
 
         // --- MAP 5: Clean Open Corridor (50 Columns Wide) ---
-       int map5Cols = 50;
+        int map5Cols = 50;
         mapTileNum[5] = new int[map5Cols][gp.maxScreenRow];
 
         for (int c = 0; c < map5Cols; c++) {
             for (int r = 0; r < gp.maxScreenRow; r++) {
                 if (c == 0 || c == map5Cols - 1 || r == 0 || r == gp.maxScreenRow - 1) {
-                    mapTileNum[5][c][r] = 1; // Solid borders
+                    mapTileNum[5][c][r] = 1; // Solid borders[cite: 1]
                 } else {
-                    mapTileNum[5][c][r] = 0; // Flooded open ground
+                    mapTileNum[5][c][r] = 0; // Flooded open ground[cite: 1]
                 }
             }
         }
-
-        // Entrance path from Map 3 (Left side)
-        for (int r = 9; r <= 10; r++) {
-            mapTileNum[5][0][r] = 12; 
-        }
-
-        // --- THE 3 FLOOD BARRIER GATES (Vertical lines) ---
-        // Barrier 1 (Column 15)
-        
 
         // Entrance path from Map 3 (Left side, rows 9-10)
         for (int r = 9; r <= 10; r++) {
             mapTileNum[5][0][r] = 12; 
         }
 
+        
         // Open exit to the next map (Bottom right area)
         for (int c = 45; c <= 47; c++) {
             mapTileNum[5][c][gp.maxScreenRow - 1] = 0; 
@@ -269,8 +235,6 @@ public class TileManager {
     }
 
     public void draw(Graphics2D g2) {
-
-        
         // If we are on Map 5, use scrolling camera logic for the 50-column width
         if (currentMap == 5) {
             int maxCols = mapTileNum[5].length; // 50 columns
@@ -278,7 +242,7 @@ public class TileManager {
             // Calculate camera position centered on the player horizontally
             int cameraX = gp.player.x - (gp.maxScreenCol / 2) * gp.tileSize;
             
-            // Clamp camera so it doesn't go out of bounds (past left or right edges)
+            // Clamp camera so it doesn't go out of bounds
             int maxCameraX = (maxCols * gp.tileSize) - (gp.maxScreenCol * gp.tileSize);
             if (cameraX < 0) cameraX = 0;
             if (cameraX > maxCameraX) cameraX = maxCameraX;

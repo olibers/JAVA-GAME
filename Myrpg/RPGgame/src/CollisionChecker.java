@@ -20,10 +20,14 @@ public class CollisionChecker {
 
         int tileNum1, tileNum2;
 
+        // Get the dynamic bounds of the current map (handles 50-column maps like Map 5 safely)
+        int currentMapMaxCol = gp.tileM.mapTileNum[gp.tileM.currentMap].length;
+        int currentMapMaxRow = gp.tileM.mapTileNum[gp.tileM.currentMap][0].length;
+
         switch (player.direction) {
             case "up":
                 playerTopRow = (playerTopWorldY - player.speed) / gp.tileSize;
-                if (playerTopRow >= 0 && playerLeftCol >= 0 && playerRightCol < gp.maxScreenCol) {
+                if (playerTopRow >= 0 && playerTopRow < currentMapMaxRow && playerLeftCol >= 0 && playerRightCol < currentMapMaxCol) {
                     tileNum1 = gp.tileM.mapTileNum[gp.tileM.currentMap][playerLeftCol][playerTopRow];
                     tileNum2 = gp.tileM.mapTileNum[gp.tileM.currentMap][playerRightCol][playerTopRow];
                     if (gp.tileM.tile[tileNum1].collision || gp.tileM.tile[tileNum2].collision) {
@@ -34,7 +38,7 @@ public class CollisionChecker {
 
             case "down":
                 playerBottomRow = (playerBottomWorldY + player.speed) / gp.tileSize;
-                if (playerBottomRow < gp.maxScreenRow && playerLeftCol >= 0 && playerRightCol < gp.maxScreenCol) {
+                if (playerBottomRow >= 0 && playerBottomRow < currentMapMaxRow && playerLeftCol >= 0 && playerRightCol < currentMapMaxCol) {
                     tileNum1 = gp.tileM.mapTileNum[gp.tileM.currentMap][playerLeftCol][playerBottomRow];
                     tileNum2 = gp.tileM.mapTileNum[gp.tileM.currentMap][playerRightCol][playerBottomRow];
                     if (gp.tileM.tile[tileNum1].collision || gp.tileM.tile[tileNum2].collision) {
@@ -45,7 +49,7 @@ public class CollisionChecker {
 
             case "left":
                 playerLeftCol = (playerLeftWorldX - player.speed) / gp.tileSize;
-                if (playerLeftCol >= 0 && playerTopRow >= 0 && playerBottomRow < gp.maxScreenRow) {
+                if (playerLeftCol >= 0 && playerLeftCol < currentMapMaxCol && playerTopRow >= 0 && playerBottomRow < currentMapMaxRow) {
                     tileNum1 = gp.tileM.mapTileNum[gp.tileM.currentMap][playerLeftCol][playerTopRow];
                     tileNum2 = gp.tileM.mapTileNum[gp.tileM.currentMap][playerLeftCol][playerBottomRow];
                     if (gp.tileM.tile[tileNum1].collision || gp.tileM.tile[tileNum2].collision) {
@@ -56,7 +60,7 @@ public class CollisionChecker {
 
             case "right":
                 playerRightCol = (playerRightWorldX + player.speed) / gp.tileSize;
-                if (playerRightCol < gp.maxScreenCol && playerTopRow >= 0 && playerBottomRow < gp.maxScreenRow) {
+                if (playerRightCol >= 0 && playerRightCol < currentMapMaxCol && playerTopRow >= 0 && playerBottomRow < currentMapMaxRow) {
                     tileNum1 = gp.tileM.mapTileNum[gp.tileM.currentMap][playerRightCol][playerTopRow];
                     tileNum2 = gp.tileM.mapTileNum[gp.tileM.currentMap][playerRightCol][playerBottomRow];
                     if (gp.tileM.tile[tileNum1].collision || gp.tileM.tile[tileNum2].collision) {
