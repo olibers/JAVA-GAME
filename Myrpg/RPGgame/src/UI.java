@@ -376,7 +376,6 @@ public class UI {
                 puzzleTimer = maxPuzzleTime;
             }
         } else {
-            // Glyph 1 / Main Earthquake puzzle: wrong answer triggers failure sequence immediately
             failPuzzlePenalty();
         }
     }
@@ -395,7 +394,7 @@ public class UI {
         glyphCursor = 0;
         puzzleTimer = maxPuzzleTime; 
         feedbackTimer = 0;
-        currentSpeaker = "Oracle"; // Added to make Oracle appear
+        currentSpeaker = "Oracle"; 
         gp.gameState = gp.puzzleState; 
     }
 
@@ -403,12 +402,11 @@ public class UI {
         if (!glyphSolved[currentGlyphNumber]) {
             puzzleTimer--;
             if (puzzleTimer <= 0) {
-                failPuzzlePenalty(); // Trigger earthquake & teleport on timeout
+                failPuzzlePenalty(); 
                 return;
             }
         }
 
-        // Added to draw Oracle portrait during glyph puzzles
         if (currentSpeaker.equals("Oracle") && oraclePortrait != null) {
             int portraitX = gp.tileSize * 1;
             int portraitY = gp.tileSize * 1;
@@ -437,7 +435,6 @@ public class UI {
         if (!glyphSolved[currentGlyphNumber]) {
             renderGlyphQuestions(g2);
 
-            // Draw feedback message if active
             if (feedbackTimer > 0) {
                 feedbackTimer--;
                 g2.setFont(new Font("Arial", Font.BOLD, 16));
@@ -659,6 +656,7 @@ public class UI {
             
             if (glyphCurrentQuestion >= maxQuestions) {
                 glyphSolved[currentGlyphNumber] = true;
+                glyphCurrentQuestion = 0; // <--- FIX 1: Reset question index so re-entry doesn't bug out
                 
                 // Check if glyphs 2, 3, 4, and 5 are ALL solved now
                 boolean allTopSolved = glyphSolved[2] && glyphSolved[3] && glyphSolved[4] && glyphSolved[5];
@@ -667,7 +665,7 @@ public class UI {
                     String validSpeaker = (playerName != null && !playerName.trim().isEmpty()) ? playerName.trim() : "Lumberjack";
                     String[] pathOpenDialogues = {
                         "Glyph #" + currentGlyphNumber + " cleared! All corner glyphs are now active.",
-                        "A deep rumbling echoes... The right path has opened!"
+                        "A deep rumbling echoes... The path to Map 5 has opened!"
                     };
                     startNPCDialogue(validSpeaker, pathOpenDialogues);
                 } else {
@@ -683,14 +681,15 @@ public class UI {
                 feedbackTimer = 60; 
 
                 if (puzzleTimer <= 0) {
-                    failPuzzlePenalty();
+                    puzzleTimer = maxPuzzleTime; // <--- FIX 2: Reset timer on timeout to avoid broken loops
+                    feedbackMessage = "Time's up! Try again.";
+                    feedbackTimer = 90;
                 }
             }
         }
     }
 
     private void failPuzzlePenalty() {
-        // Allows failure sequence to run for Glyph 1 if incomplete, OR Glyphs 2-5 if running active/timed out
         if (earthquakeSolved && currentGlyphNumber == 1) return;
         if (currentGlyphNumber >= 2 && currentGlyphNumber <= 5 && glyphSolved[currentGlyphNumber]) return;
 

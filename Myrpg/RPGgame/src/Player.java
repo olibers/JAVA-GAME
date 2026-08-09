@@ -42,15 +42,34 @@ public class Player extends Entity {
     }
 
     public void checkMapTransition() {
-        // MAP 3: Village transitions
         if (gp.tileM.currentMap == 3) {
-            // Walk off the left path to enter Map 5
-            if (x < 0) {
-                gp.tileM.currentMap = 5;
-                x = gp.tileSize * (gp.maxScreenCol - 2); // Safely place player into Map 5
+            // MAP 3: Village transitions - Check RIGHT edge path to Map 5
+            if (x > gp.tileSize * (gp.maxScreenCol - 1)) {
+                int row = y / gp.tileSize;
+                if (row >= 7 && row <= 8) { 
+                    boolean map6Finished = gp.ui.glyphSolved[2] && gp.ui.glyphSolved[3] && gp.ui.glyphSolved[4] && gp.ui.glyphSolved[5];
+                    
+                    if (map6Finished) {
+                        // ONLY teleport to Map 5 if Map 6 is fully finished
+                        gp.tileM.currentMap = 5;
+                        x = gp.tileSize * 1; // Spawn safely inside Map 5
+                    } else {
+                        // HARD STOP: Force player back inside Map 3 so they can't slip through
+                        x = gp.tileSize * (gp.maxScreenCol - 2); 
+                        collisionOn = true;
+                        
+                        // Trigger the warning dialogue only if it isn't already active
+                        if (gp.gameState != gp.dialogueState) {
+                            gp.gameState = gp.dialogueState;
+                            gp.ui.currentDialogue = "The right path is sealed by a powerful barrier!\nYou must finish the glyphs in Map 6 first!";
+                        }
+                    }
+                } else {
+                    x = gp.tileSize * (gp.maxScreenCol - 2); // Block movement outside the path opening
+                }
             }
-            // Walk off right path -> Map 9
-            else if (x > gp.tileSize * (gp.maxScreenCol - 1)) {
+            // Walk off left path (if used for Map 9 or something else)
+            else if (x < 0) {
                 gp.tileM.currentMap = 9;
                 x = gp.tileSize;
             }
@@ -92,9 +111,9 @@ public class Player extends Entity {
             x = gp.tileSize * (gp.maxScreenCol - 2);
         }
         // Return to Village from Map 5 (Typhoon Corridor)
-        else if (gp.tileM.currentMap == 5 && x > gp.tileSize * (gp.tileM.mapTileNum[5].length - 1)) {
+        else if (gp.tileM.currentMap == 5 && x < 0) {
             gp.tileM.currentMap = 3;
-            x = gp.tileSize;
+            x = gp.tileSize * (gp.maxScreenCol - 2);
         }
     }
  
@@ -155,10 +174,29 @@ public class Player extends Entity {
 
             if (!collisionOn) {
                 switch (direction) {
-                    case "up": y -= speed; break;
-                    case "down": y += speed; break;
-                    case "left": x -= speed; break;
-                    case "right": x += speed; break;
+                    case "up": 
+                        y -= speed; 
+                        break;
+                    case "down": 
+                        y += speed; 
+                        break;
+                    case "left": 
+                        x -= speed; 
+                        break;
+                    case "right": 
+                        // Intercept right movement on Map 3 at the barrier path rows if glyphs aren't done
+                        if (gp.tileM.currentMap == 3 && x + speed >= gp.tileSize * gp.maxScreenCol) {
+                            int row = y / gp.tileSize;
+                            if (row >= 7 && row <= 8) {
+                                boolean map6Finished = gp.ui.glyphSolved[2] && gp.ui.glyphSolved[3] && gp.ui.glyphSolved[4] && gp.ui.glyphSolved[5];
+                                if (!map6Finished) {
+                                    x = gp.tileSize * gp.maxScreenCol - gp.tileSize; // Hard stop at boundary
+                                    break;
+                                }
+                            }
+                        }
+                        x += speed; 
+                        break;
                 }
             }
 
@@ -166,33 +204,33 @@ public class Player extends Entity {
 
             // --- FLOOD BARRIER CHECKS ---
             // --- FLOOD WAVE BARRIER CHECKS ---
-if (gp.tileM.currentMap == 5) {
-    int playerCol = x / gp.tileSize;
-    
-    // Wave 1 Barrier (Column 15 - triggers at Col 14)
-    if (playerCol == 14 && !gp.barrier1Cleared && !gp.waitingForAnswer) {
-        gp.gameState = gp.dialogueState;
-        gp.activeQuestion = 1;
-        gp.waitingForAnswer = true;
-        gp.ui.currentDialogue = "Incoming Flood Wave 1!\nWhat should you do during a flash flood?\n[Press 1] Stay in low areas\n[Press 2] Move to higher ground";
-    }
-    
-    // Wave 2 Barrier (Column 25 - triggers at Col 24)
-    else if (playerCol == 24 && !gp.barrier2Cleared && !gp.waitingForAnswer) {
-        gp.gameState = gp.dialogueState;
-        gp.activeQuestion = 2;
-        gp.waitingForAnswer = true;
-        gp.ui.currentDialogue = "Incoming Flood Wave 2!\nShould you walk through moving flood water?\n[Press 1] Yes, if it's shallow\n[Press 2] No, it can sweep you away";
-    }
-    
-    // Wave 3 Barrier (Column 35 - triggers at Col 34)
-    else if (playerCol == 34 && !gp.barrier3Cleared && !gp.waitingForAnswer) {
-        gp.gameState = gp.dialogueState;
-        gp.activeQuestion = 3;
-        gp.waitingForAnswer = true;
-        gp.ui.currentDialogue = "Incoming Flood Wave 3!\nWhat is the safest utility to turn off?\n[Press 1] Main power breaker\n[Press 2] Leave everything on";
-    }
-}
+            if (gp.tileM.currentMap == 5) {
+                int playerCol = x / gp.tileSize;
+                
+                // Wave 1 Barrier (Column 15 - triggers at Col 14)
+                if (playerCol == 14 && !gp.barrier1Cleared && !gp.waitingForAnswer) {
+                    gp.gameState = gp.dialogueState;
+                    gp.activeQuestion = 1;
+                    gp.waitingForAnswer = true;
+                    gp.ui.currentDialogue = "Incoming Flood Wave 1!\nWhat should you do during a flash flood?\n[Press 1] Stay in low areas\n[Press 2] Move to higher ground";
+                }
+                
+                // Wave 2 Barrier (Column 25 - triggers at Col 24)
+                else if (playerCol == 24 && !gp.barrier2Cleared && !gp.waitingForAnswer) {
+                    gp.gameState = gp.dialogueState;
+                    gp.activeQuestion = 2;
+                    gp.waitingForAnswer = true;
+                    gp.ui.currentDialogue = "Incoming Flood Wave 2!\nShould you walk through moving flood water?\n[Press 1] Yes, if it's shallow\n[Press 2] No, it can sweep you away";
+                }
+                
+                // Wave 3 Barrier (Column 35 - triggers at Col 34)
+                else if (playerCol == 34 && !gp.barrier3Cleared && !gp.waitingForAnswer) {
+                    gp.gameState = gp.dialogueState;
+                    gp.activeQuestion = 3;
+                    gp.waitingForAnswer = true;
+                    gp.ui.currentDialogue = "Incoming Flood Wave 3!\nWhat is the safest utility to turn off?\n[Press 1] Main power breaker\n[Press 2] Leave everything on";
+                }
+            }
             // -----------------------------
 
             spriteCounter++;
