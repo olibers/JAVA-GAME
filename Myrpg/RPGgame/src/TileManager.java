@@ -34,6 +34,10 @@ public class TileManager {
         tile[0].collision = false;
 
         tile[1] = new Tile();
+        tile[1].image = loadTexture("/assets/tiles/fallentree.png", "assets/tiles/fallentree.png", Color.black);
+        tile[1].collision = true;
+
+        tile[1] = new Tile();
         tile[1].image = loadTexture("/assets/tiles/tree.png", "assets/tiles/tree.png", Color.DARK_GRAY);
         tile[1].collision = true;
 

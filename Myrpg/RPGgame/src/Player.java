@@ -157,7 +157,7 @@ public class Player extends Entity {
     public void update() {
         // Increase speed dynamically on Map 5 so the long corridor feels smooth
         if (gp.tileM.currentMap == 5) {
-            speed = 6;
+            speed = 2;
         } else {
             speed = 4;
         }
@@ -206,6 +206,8 @@ public class Player extends Entity {
             // --- FLOOD WAVE BARRIER CHECKS ---
             if (gp.tileM.currentMap == 5) {
                 int playerCol = x / gp.tileSize;
+                
+
                 
                 // Wave 1 Barrier (Column 15 - triggers at Col 14)
                 if (playerCol == 14 && !gp.barrier1Cleared && !gp.waitingForAnswer) {
