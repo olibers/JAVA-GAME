@@ -24,3 +24,4 @@ public class App {
         gamePanel.setupGame();
         gamePanel.startGameThread();
     }
+}

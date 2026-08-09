@@ -6,7 +6,7 @@ import java.awt.Graphics2D;
 import javax.swing.JOptionPane;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
-import java.io.File;
+
 import java.io.IOException;
 
 public class UI {
@@ -35,7 +35,7 @@ public class UI {
         this.gp = gp;
         
         try {
-            oraclePortrait = ImageIO.read(new File("assets/tiles/mysteriousguy.png"));
+            oraclePortrait = ImageIO.read(getClass().getResourceAsStream("/assets/tiles/mysteriousguy.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
