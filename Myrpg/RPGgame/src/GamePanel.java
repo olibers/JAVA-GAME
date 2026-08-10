@@ -21,8 +21,19 @@ public class GamePanel extends JPanel implements Runnable {
     public boolean earthquakePuzzleSolved = false; 
     
     public boolean map7EntranceSealed = false;
+    public boolean map8DialogueShown = false; 
     public dyingcharacter dyingNpc = new dyingcharacter(this);
     
+    // Typhoon Wind Particle variables for Map 8 / Map 9
+    private class WindParticle {
+        int x, y, speed, length;
+        WindParticle(int x, int y, int speed, int length) {
+            this.x = x; this.y = y; this.speed = speed; this.length = length;
+        }
+    }
+    private WindParticle[] windParticles = new WindParticle[40];
+    private Random particleRandom = new Random();
+
     public boolean isOracleDialogue = false;
     public String[] oracleMap5Dialogue = {
         "The right pathway unlocks as the inner sanctum's glyphs glow brightly!",
@@ -83,6 +94,16 @@ public class GamePanel extends JPanel implements Runnable {
         this.addKeyListener(keyH);
         this.setFocusable(true);
         this.requestFocusInWindow(); 
+
+        // Initialize wind animation particles
+        for (int i = 0; i < windParticles.length; i++) {
+            windParticles[i] = new WindParticle(
+                particleRandom.nextInt(screenWidth),
+                particleRandom.nextInt(screenHeight),
+                particleRandom.nextInt(8) + 10, // speed
+                particleRandom.nextInt(20) + 15 // line length
+            );
+        }
 
         setupGame();
     }
@@ -152,6 +173,24 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void update() {
+        // Update wind particle animation if on Map 8
+        if (tileM.currentMap == 8) {
+            for (int i = 0; i < windParticles.length; i++) {
+                windParticles[i].x -= windParticles[i].speed; // Blows leftward with heavy wind force
+                if (windParticles[i].x < 0) {
+                    windParticles[i].x = screenWidth;
+                    windParticles[i].y = particleRandom.nextInt(screenHeight);
+                }
+            }
+        }
+
+        // Slow down player speed only when inside Map 8[cite: 7]
+        if (tileM.currentMap == 8) {
+            player.speed = player.defaultSpeed / 2;
+        } else {
+            player.speed = player.defaultSpeed;
+        }
+
         if (isOracleDialogue && gameState == playState && !map5FloodTriggered) {
             map5FloodTriggered = true;
             map5FloodRunning = true;
@@ -231,7 +270,6 @@ public class GamePanel extends JPanel implements Runnable {
                 ui.startNPCDialogue("Dying Traveler", dyingNpc.dialogues);
             }
 
-            // Widen the passage opening on the right wall once dialogue finishes
             if (dyingNpc.dialogueFinished) {
                 for (int r = 4; r <= 6; r++) {
                     tileM.mapTileNum[7][maxScreenCol - 1][r] = 0; 
@@ -250,11 +288,35 @@ public class GamePanel extends JPanel implements Runnable {
             }
         }
         else if (tileM.currentMap == 8) {
-            // Allow going back left to Map 7 through the wider passage
+            if (!map8DialogueShown) {
+                map8DialogueShown = true;
+                String[] typhoonMsg = {
+                    "Winds of the typhoon are blowing fiercely!",
+                    "I need to reach that building door to take cover!"
+                };
+                ui.startNPCDialogue("System", typhoonMsg);
+            }
+
             if (player.x <= 0) {
                 tileM.currentMap = 7;
                 player.x = screenWidth - (tileSize * 2);
                 player.y = tileSize * 5;
+            }
+
+            int playerCol = player.x / tileSize;
+            int playerRow = player.y / tileSize;
+
+            if (playerCol == 14 && playerRow == 5 && keyH.enterPressed) {
+                keyH.enterPressed = false;
+                
+                tileM.currentMap = 9;
+                player.x = tileSize * 2;
+                player.y = tileSize * 5;
+
+                String[] enterBuildingMsg = {
+                    "You managed to slip through the heavy winds and enter the building safely."
+                };
+                ui.startNPCDialogue("System", enterBuildingMsg);
             }
         }
 
@@ -274,7 +336,6 @@ public class GamePanel extends JPanel implements Runnable {
             }
 
             if (tileM.currentMap == 0) {
-
                 if (villagePathUnlocked && player.y <= 0) {
                     tileM.currentMap = 2; 
                     player.x = tileSize * 8;
@@ -348,7 +409,6 @@ public class GamePanel extends JPanel implements Runnable {
                 }
             } 
             else if (tileM.currentMap == 1) {
-
                 int dx = Math.abs(player.x - oracle.x);
                 int dy = Math.abs(player.y - oracle.y);
 
@@ -395,7 +455,6 @@ public class GamePanel extends JPanel implements Runnable {
                 }
             }
             else if (tileM.currentMap == 2) {
-
                 if (player.y <= 0) {
                     tileM.currentMap = 3; 
                     player.x = tileSize * 8;
@@ -413,7 +472,6 @@ public class GamePanel extends JPanel implements Runnable {
                 }
             }
             else if (tileM.currentMap == 3) {
-
                 if (!villageOracleAppeared) {
                     villageOracleAppeared = true;
                     
@@ -553,6 +611,14 @@ public class GamePanel extends JPanel implements Runnable {
 
         player.draw(g2);
 
+        // Draw animated wind/debris particle streaks across the screen when on Map 8
+        if (tileM.currentMap == 8) {
+            g2.setColor(new Color(255, 255, 255, 130)); // Semi-transparent white wind lines
+            for (int i = 0; i < windParticles.length; i++) {
+                g2.drawLine(windParticles[i].x, windParticles[i].y, windParticles[i].x + windParticles[i].length, windParticles[i].y - 2);
+            }
+        }
+
         if (screenShakeCounter > 0) {
             g2.translate(-shakeX, -shakeY);
         }
@@ -591,6 +657,10 @@ public class GamePanel extends JPanel implements Runnable {
             g2.setColor(Color.WHITE);
             g2.drawString("Objective: Chop Trees (" + treesChopped + "/" + MAX_TREES_TO_CHOP + ")", 20, 30);
             g2.drawString("Press [E] to chop", 20, 50);
+        } else if (tileM.currentMap == 8 && gameState == playState) {
+            g2.setFont(new Font("Arial", Font.BOLD, 16));
+            g2.setColor(Color.WHITE);
+            g2.drawString("Objective: Reach the building door (Right Wall) and press [ENTER]", 20, 30);
         }
 
         if (gameState == cutsceneState) {

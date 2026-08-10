@@ -74,6 +74,17 @@ public class TileManager {
         gPath.fillRect(0, 0, gp.tileSize, gp.tileSize);
         gPath.dispose();
         tile[12].collision = false;
+
+        // Added building door tile for Map 8
+        tile[13] = new Tile();
+        tile[13].image = new BufferedImage(gp.tileSize, gp.tileSize, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D gHouse = tile[13].image.createGraphics();
+        gHouse.setColor(new Color(139, 69, 19)); 
+        gHouse.fillRect(0, 0, gp.tileSize, gp.tileSize);
+        gHouse.setColor(Color.YELLOW); 
+        gHouse.drawRect(4, 4, gp.tileSize - 8, gp.tileSize - 8);
+        gHouse.dispose();
+        tile[13].collision = false; 
     }
 
     private BufferedImage loadTexture(String resourcePath, String filePath, Color fallbackColor) {
@@ -257,6 +268,23 @@ public class TileManager {
         for (int r = 4; r <= 6; r++) {
             mapTileNum[8][0][r] = 0;
         }
+
+        // Place the building door on the right wall of Map 8 (col 14, row 5)
+        mapTileNum[8][14][5] = 13;
+
+        // --- ADD RANDOM OBSTACLE TREES IN THE MIDDLE ---
+       mapTileNum[8][5][2] = 1;
+        mapTileNum[8][7][4] = 1;
+        mapTileNum[8][9][3] = 1;
+        mapTileNum[8][11][6] = 1;
+        
+        // 6 Additional Random Trees
+        mapTileNum[8][4][8] = 1;
+        mapTileNum[8][6][2] = 1;
+        mapTileNum[8][8][5] = 1;
+        mapTileNum[8][10][9] = 1;
+        mapTileNum[8][12][4] = 1;
+        mapTileNum[8][13][8] = 1;
     }
 
     public void draw(Graphics2D g2) {

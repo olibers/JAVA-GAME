@@ -10,8 +10,10 @@ public class Player extends Entity {
     GamePanel gp;
     KeyHandler keyH;
 
+    public int defaultSpeed = 4; // or whatever your default value is
+    public int speed = defaultSpeed;
     public int x, y;
-    public int speed;
+    
     public String direction = "down";
 
     public Rectangle solidArea;
@@ -117,29 +119,29 @@ public class Player extends Entity {
         }
 
         // Check for map transition on Map 5
-if (gp.tileM.currentMap == 5) {
-    int playerCol = x / gp.tileSize;
-    int playerRow = y / gp.tileSize;
-    
-    // Check if player is standing on the green grass exit tile at the bottom right
-    if (playerCol >= 43 && playerCol <= 46 && playerRow >= 11) {
-        gp.tileM.currentMap = 7;           // Switch to your new Map 7
-        x = gp.tileSize * 7;               // Spawn player at X coordinate on Map 7
-        y = gp.tileSize * 2;               // Spawn player at Y coordinate on Map 7
-        
-        // Trigger Map 7 Oracle Event & Close Entrance
-        if (!gp.map7EventDone) {
-            gp.gameState = gp.gameState = gp.dialogueState; // Pause game for dialogue
-            gp.ui.currentDialogue = "Oracle: A severe typhoon is approaching! Quick, find shelter before the floodwaters rise!";
+        if (gp.tileM.currentMap == 5) {
+            int playerCol = x / gp.tileSize;
+            int playerRow = y / gp.tileSize;
             
-            // Close the entrance path on Map 7 (turn entrance tiles into solid trees, Tile index 1)
-            gp.tileM.mapTileNum[7][7][0] = 1;
-            gp.tileM.mapTileNum[7][8][0] = 1;
-            
-            gp.map7EventDone = true; // Ensure this only triggers once
+            // Check if player is standing on the green grass exit tile at the bottom right
+            if (playerCol >= 43 && playerCol <= 46 && playerRow >= 11) {
+                gp.tileM.currentMap = 7;           // Switch to your new Map 7
+                x = gp.tileSize * 7;               // Spawn player at X coordinate on Map 7
+                y = gp.tileSize * 2;               // Spawn player at Y coordinate on Map 7
+                
+                // Trigger Map 7 Oracle Event & Close Entrance
+                if (!gp.map7EventDone) {
+                    gp.gameState = gp.gameState = gp.dialogueState; // Pause game for dialogue
+                    gp.ui.currentDialogue = "Oracle: A severe typhoon is approaching! Quick, find shelter before the floodwaters rise!";
+                    
+                    // Close the entrance path on Map 7 (turn entrance tiles into solid trees, Tile index 1)
+                    gp.tileM.mapTileNum[7][7][0] = 1;
+                    gp.tileM.mapTileNum[7][8][0] = 1;
+                    
+                    gp.map7EventDone = true; // Ensure this only triggers once
+                }
+            }
         }
-    }
-}
     }
  
     public void getPlayerImage() {
@@ -180,11 +182,13 @@ if (gp.tileM.currentMap == 5) {
     }
 
     public void update() {
-        // Increase speed dynamically on Map 5 so the long corridor feels smooth
+        // Adjust speed dynamically depending on the current map
         if (gp.tileM.currentMap == 5) {
             speed = 2;
+        } else if (gp.tileM.currentMap == 8) {
+            speed = defaultSpeed / 2; // Cuts speed in half due to heavy winds in Map 8
         } else {
-            speed = 4;
+            speed = defaultSpeed;
         }
 
         if (keyH.upPressed || keyH.downPressed || keyH.leftPressed || keyH.rightPressed) {
@@ -228,11 +232,8 @@ if (gp.tileM.currentMap == 5) {
             checkMapTransition();
 
             // --- FLOOD BARRIER CHECKS ---
-            // --- FLOOD WAVE BARRIER CHECKS ---
             if (gp.tileM.currentMap == 5) {
                 int playerCol = x / gp.tileSize;
-                
-
                 
                 // Wave 1 Barrier (Column 15 - triggers at Col 14)
                 if (playerCol == 14 && !gp.barrier1Cleared && !gp.waitingForAnswer) {
