@@ -148,6 +148,30 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
+    // Reset Map 5 questions and re-seal exit path if player retreats
+    public void resetMap5Progress() {
+        barrier1Cleared = false;
+        barrier2Cleared = false;
+        barrier3Cleared = false;
+        waitingForAnswer = false;
+        
+        // Re-seal the bottom-right exit path on Map 5 (turn exit tiles back to solid/water index 1)
+        for (int c = 43; c <= 46; c++) {
+            if (c < tileM.mapTileNum[5].length) {
+                tileM.mapTileNum[5][c][maxScreenRow - 1] = 1;
+            }
+        }
+    }
+
+    // Explicitly carve the bottom-right exit path on Map 5 when tasks are finished
+    public void openMap5ExitPath() {
+    for (int c = 43; c <= 46; c++) {
+        if (c < tileM.mapTileNum[5].length) {
+            tileM.mapTileNum[5][c][maxScreenRow - 1] = 0; // 0 = open floor path
+        }
+    }
+}
+
     public void startGameThread() {
         gameThread = new Thread(this);
         gameThread.start();
@@ -184,7 +208,7 @@ public class GamePanel extends JPanel implements Runnable {
             }
         }
 
-        // Slow down player speed only when inside Map 8[cite: 7]
+        // Slow down player speed only when inside Map 8
         if (tileM.currentMap == 8) {
             player.speed = player.defaultSpeed / 2;
         } else {
@@ -220,6 +244,13 @@ public class GamePanel extends JPanel implements Runnable {
             screenShakeCounter--;
         }
 
+        // Map 5 Retreat Check (if player walks back to left entrance)
+        if (tileM.currentMap == 5 && player.x < 0) {
+            resetMap5Progress();
+            tileM.currentMap = 3;
+            player.x = tileSize * (maxScreenCol - 2);
+        }
+
         if (tileM.currentMap == 3 && player.x < 0) {
             tileM.currentMap = 4;
             player.x = screenWidth - (tileSize * 2); 
@@ -253,10 +284,9 @@ public class GamePanel extends JPanel implements Runnable {
             player.y = tileSize; 
         }
         else if (tileM.currentMap == 7) {
-            if (!map7EntranceSealed) {
-                map7EntranceSealed = true;
-                tileM.mapTileNum[7][7][0] = 1;
-                tileM.mapTileNum[7][8][0] = 1;
+            // Immediately force the right-side exit path to be open
+            for (int r = 4; r <= 6; r++) {
+                tileM.mapTileNum[7][maxScreenCol - 1][r] = 0; 
             }
             
             dyingNpc.x = tileSize * 8;
@@ -503,6 +533,8 @@ public class GamePanel extends JPanel implements Runnable {
                     if (allGlyphsDone) {
                         tileM.currentMap = 5; 
                         player.x = tileSize * 2;
+
+                        openMap5ExitPath();
                         
                         isOracleDialogue = true;
                         ui.startNPCDialogue("Oracle", oracleMap5Dialogue);

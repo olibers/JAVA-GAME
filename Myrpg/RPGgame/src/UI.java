@@ -641,15 +641,15 @@ public class UI {
             
             if (glyphCurrentQuestion >= maxQuestions) {
                 glyphSolved[currentGlyphNumber] = true;
-                glyphCurrentQuestion = 0; 
                 
+                // Check if glyphs 2, 3, 4, and 5 are ALL solved now
                 boolean allTopSolved = glyphSolved[2] && glyphSolved[3] && glyphSolved[4] && glyphSolved[5];
                 
                 if (allTopSolved) {
                     String validSpeaker = (playerName != null && !playerName.trim().isEmpty()) ? playerName.trim() : "Lumberjack";
                     String[] pathOpenDialogues = {
                         "Glyph #" + currentGlyphNumber + " cleared! All corner glyphs are now active.",
-                        "A deep rumbling echoes... The path to Map 5 has opened!"
+                        "A deep rumbling echoes... The right path has opened!"
                     };
                     startNPCDialogue(validSpeaker, pathOpenDialogues);
                 } else {
@@ -665,9 +665,7 @@ public class UI {
                 feedbackTimer = 60; 
 
                 if (puzzleTimer <= 0) {
-                    puzzleTimer = maxPuzzleTime; 
-                    feedbackMessage = "Time's up! Try again.";
-                    feedbackTimer = 90;
+                    failPuzzlePenalty();
                 }
             }
         }

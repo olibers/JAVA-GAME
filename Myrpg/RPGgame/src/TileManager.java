@@ -216,9 +216,7 @@ public class TileManager {
             mapTileNum[5][0][r] = 12; 
         }
 
-        for (int c = 45; c <= 47; c++) {
-            mapTileNum[5][c][gp.maxScreenRow - 1] = 0; 
-        }
+        
 
         for (int c = 0; c < gp.maxScreenCol; c++) {
             for (int r = 0; r < gp.maxScreenRow; r++) {
