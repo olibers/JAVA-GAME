@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.InputStream;
 import javax.imageio.ImageIO;
 
-
 public class TileManager {
 
     GamePanel gp;
@@ -24,11 +23,8 @@ public class TileManager {
     }
 
     public void getTileImage() {
-
-        
-
         tile[20] = new Tile();
-        tile[20].image = loadTexture("/assets/tiles/water.png", "assets/tiles/water.png", Color.BLUE); // Or a custom flood asset
+        tile[20].image = loadTexture("/assets/tiles/water.png", "assets/tiles/water.png", Color.BLUE);
         tile[20].collision = false;
 
         tile[0] = new Tile();
@@ -47,7 +43,6 @@ public class TileManager {
         g2.dispose();
         tile[2].collision = false;
 
-        // House tiles occupy indices 3 through 11
         BufferedImage rawHouse = loadTexture("/assets/tiles/house.png", "assets/tiles/house.png", Color.ORANGE);
         int subW = rawHouse.getWidth() / 3;
         int subH = rawHouse.getHeight() / 3;
@@ -79,7 +74,6 @@ public class TileManager {
         gPath.fillRect(0, 0, gp.tileSize, gp.tileSize);
         gPath.dispose();
         tile[12].collision = false;
-
     }
 
     private BufferedImage loadTexture(String resourcePath, String filePath, Color fallbackColor) {
@@ -194,32 +188,27 @@ public class TileManager {
             mapTileNum[4][c][10] = 12;
         }
 
-        // --- MAP 5: Clean Open Corridor (50 Columns Wide) ---
         int map5Cols = 50;
         mapTileNum[5] = new int[map5Cols][gp.maxScreenRow];
 
         for (int c = 0; c < map5Cols; c++) {
             for (int r = 0; r < gp.maxScreenRow; r++) {
                 if (c == 0 || c == map5Cols - 1 || r == 0 || r == gp.maxScreenRow - 1) {
-                    mapTileNum[5][c][r] = 1; // Solid borders[cite: 1]
+                    mapTileNum[5][c][r] = 1; 
                 } else {
-                    mapTileNum[5][c][r] = 0; // Flooded open ground[cite: 1]
+                    mapTileNum[5][c][r] = 0; 
                 }
             }
         }
 
-        // Entrance path from Map 3 (Left side, rows 9-10)
         for (int r = 9; r <= 10; r++) {
             mapTileNum[5][0][r] = 12; 
         }
 
-        
-        // Open exit to the next map (Bottom right area)
         for (int c = 45; c <= 47; c++) {
             mapTileNum[5][c][gp.maxScreenRow - 1] = 0; 
         }
 
-        // Map 6: Top Room with 4 Corner Glyphs (2, 3, 4, 5)
         for (int c = 0; c < gp.maxScreenCol; c++) {
             for (int r = 0; r < gp.maxScreenRow; r++) {
                 if (c == 0 || c == gp.maxScreenCol - 1 || r == 0 || r == gp.maxScreenRow - 1) {
@@ -233,43 +222,53 @@ public class TileManager {
             mapTileNum[6][c][gp.maxScreenRow - 1] = 12; 
         }
 
-        // --- MAP 7: New Destination Map ---
+        // Map 7: Dying Character Room
         int map7Cols = gp.maxScreenCol;
         mapTileNum[7] = new int[map7Cols][gp.maxScreenRow];
 
         for (int c = 0; c < map7Cols; c++) {
             for (int r = 0; r < gp.maxScreenRow; r++) {
-                // Set solid tree borders around the edges, grass (0) on the inside
                 if (c == 0 || c == map7Cols - 1 || r == 0 || r == gp.maxScreenRow - 1) {
-                    mapTileNum[7][c][r] = 1; // Solid tree border
+                    mapTileNum[7][c][r] = 1; 
                 } else {
-                    mapTileNum[7][c][r] = 0; // Open grass floor
+                    mapTileNum[7][c][r] = 0; 
                 }
             }
         }
         
-        // Create an entrance path at the top or left so the player doesn't spawn inside a wall
         for (int c = 7; c <= 8; c++) {
-            mapTileNum[7][c][0] = 12; // Path tile leading back or into the room
+            mapTileNum[7][c][0] = 12; 
+        }
+
+        // Map 8: Located to the right of Map 7
+        int map8Cols = gp.maxScreenCol;
+        mapTileNum[8] = new int[map8Cols][gp.maxScreenRow];
+
+        for (int c = 0; c < map8Cols; c++) {
+            for (int r = 0; r < gp.maxScreenRow; r++) {
+                if (c == 0 || c == map8Cols - 1 || r == 0 || r == gp.maxScreenRow - 1) {
+                    mapTileNum[8][c][r] = 1; 
+                } else {
+                    mapTileNum[8][c][r] = 0; 
+                }
+            }
+        }
+        // Widen left side opening for Map 8 (rows 4 to 6)
+        for (int r = 4; r <= 6; r++) {
+            mapTileNum[8][0][r] = 0;
         }
     }
 
     public void draw(Graphics2D g2) {
-        // If we are on Map 5, use scrolling camera logic for the 50-column width
         if (currentMap == 5) {
-            int maxCols = mapTileNum[5].length; // 50 columns
-            
-            // Calculate camera position centered on the player horizontally
+            int maxCols = mapTileNum[5].length;
             int cameraX = gp.player.x - (gp.maxScreenCol / 2) * gp.tileSize;
-            
-            // Clamp camera so it doesn't go out of bounds
             int maxCameraX = (maxCols * gp.tileSize) - (gp.maxScreenCol * gp.tileSize);
             if (cameraX < 0) cameraX = 0;
             if (cameraX > maxCameraX) cameraX = maxCameraX;
             
             int tileColOffset = cameraX / gp.tileSize;
             
-            // Draw only the columns visible on screen based on camera offset
             for (int col = 0; col < gp.maxScreenCol + 1; col++) {
                 int targetCol = col + tileColOffset;
                 if (targetCol >= maxCols) break;
@@ -284,7 +283,6 @@ public class TileManager {
                 }
             }
         } else {
-            // Standard drawing for all other single-screen maps
             for (int col = 0; col < gp.maxScreenCol; col++) {
                 for (int row = 0; row < gp.maxScreenRow; row++) {
                     int tileNum = mapTileNum[currentMap][col][row];
@@ -295,21 +293,13 @@ public class TileManager {
             }
         }
 
-        // Render the 4 Corner Glyphs on Map 6 matching your sketch
         if (currentMap == 6) {
             int playerCol = gp.player.x / gp.tileSize;
             int playerRow = gp.player.y / gp.tileSize;
 
-            // Glyph 2 (Top-Left) at Col 2, Row 2
             drawSingleGlyph(g2, 2, 2, 2, playerCol, playerRow);
-
-            // Glyph 3 (Top-Right) at Col 13, Row 2
             drawSingleGlyph(g2, 13, 2, 3, playerCol, playerRow);
-
-            // Glyph 4 (Bottom-Left) at Col 2, Row 9
             drawSingleGlyph(g2, 2, 9, 4, playerCol, playerRow);
-
-            // Glyph 5 (Bottom-Right) at Col 13, Row 9
             drawSingleGlyph(g2, 13, 9, 5, playerCol, playerRow);
         }
     }
@@ -320,18 +310,15 @@ public class TileManager {
 
         boolean solved = gp.ui.glyphSolved[glyphNum];
 
-        // Draw tile box
         g2.setColor(solved ? new Color(0, 255, 0, 180) : new Color(255, 215, 0, 220));
         g2.fillRect(x + 8, y + 8, gp.tileSize - 16, gp.tileSize - 16);
         g2.setColor(Color.WHITE);
         g2.drawRect(x + 8, y + 8, gp.tileSize - 16, gp.tileSize - 16);
 
-        // Label glyph number
         g2.setFont(new Font("Arial", Font.BOLD, 12));
         g2.setColor(Color.BLACK);
         g2.drawString("G" + glyphNum, x + 14, y + 28);
 
-        // Prompt if player is near
         if (Math.abs(playerCol - col) <= 1 && Math.abs(playerRow - row) <= 1) {
             g2.setColor(Color.YELLOW);
             String prompt = solved ? "Glyph " + glyphNum + " Cleared" : "Press [E] for Glyph " + glyphNum;

@@ -8,7 +8,6 @@ import java.util.Random;
 
 public class GamePanel extends JPanel implements Runnable {
 
-    // Gameplay Progress Tracking
     public boolean villageOracleAppeared = false;
     public boolean map6OracleAppeared = false;
     public int treesChopped = 0;
@@ -21,13 +20,9 @@ public class GamePanel extends JPanel implements Runnable {
     public boolean villagePathUnlocked = false;
     public boolean earthquakePuzzleSolved = false; 
     
-    // Map 7 Entrance Seal Flag
     public boolean map7EntranceSealed = false;
-    
-    // Dying Character for Map 7
     public dyingcharacter dyingNpc = new dyingcharacter(this);
     
-    // --- CLASS LEVEL VARIABLES (Moved out of update method) ---
     public boolean isOracleDialogue = false;
     public String[] oracleMap5Dialogue = {
         "The right pathway unlocks as the inner sanctum's glyphs glow brightly!",
@@ -37,17 +32,14 @@ public class GamePanel extends JPanel implements Runnable {
         "Oracle: But do not celebrate just yet—my deeds and trials for you are far from over."
     };
 
-    // Map 5 Flood Animation Variables
     public boolean map5FloodTriggered = false;
     public boolean map5FloodRunning = false;
     public int map5FloodCol = 0;
     public int map5FloodTimer = 0;
     
-    // Screen Shake Variables
     public int screenShakeCounter = 0;
     private Random shakeRandom = new Random();
     
-    // Title/Setup State Flag
     public boolean map7EventDone = false;
     private boolean namePromptShown = false;
     public boolean barrier1Cleared = false;
@@ -57,30 +49,26 @@ public class GamePanel extends JPanel implements Runnable {
     public int activeQuestion = 0;
     public boolean waveAnimationRunning = false;
     public int waveAnimCounter = 0;
-    public int targetWaveCol = 10; // Start rolling waves from column 10
+    public int targetWaveCol = 10;
 
-    // Screen Settings
     final int originalTileSize = 16;
     final int scale = 3;
-    public final int tileSize = originalTileSize * scale; // 48x48
+    public final int tileSize = originalTileSize * scale; 
     public final int maxScreenCol = 16;
     public final int maxScreenRow = 12;
     public final int screenWidth = tileSize * maxScreenCol;
     public final int screenHeight = tileSize * maxScreenRow;
 
-    // System Components
     public TileManager tileM = new TileManager(this);
     public KeyHandler keyH = new KeyHandler(this);
     Thread gameThread;
     public CollisionChecker cChecker = new CollisionChecker(this);
     public UI ui = new UI(this);
 
-    // Entities & Items
     public Player player = new Player(this, keyH);
     public NPC oracle = new NPC(this);
     public BookItem guideBook = new BookItem(this, 8, 6);
 
-    // Game States
     public int gameState;
     public final int titleState = 0;
     public final int playState = 1;
@@ -164,36 +152,31 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void update() {
+        if (isOracleDialogue && gameState == playState && !map5FloodTriggered) {
+            map5FloodTriggered = true;
+            map5FloodRunning = true;
+            map5FloodCol = tileM.mapTileNum[5].length - 2; 
+            triggerScreenShake(100); 
 
-     // Handle Map 5 Flood Animation (Sweeps across the entire 50-block room)
-if (isOracleDialogue && gameState == playState && !map5FloodTriggered) {
-    map5FloodTriggered = true;
-    map5FloodRunning = true;
-    // Start at the far-right edge of the 50-block map (minus 1 for the border tree)
-    map5FloodCol = tileM.mapTileNum[5].length - 2; 
-    triggerScreenShake(100); 
-
-    tileM.mapTileNum[5][0][9] = 1;  // Turn top entrance tile into solid wall
-    tileM.mapTileNum[5][0][10] = 1; // Turn bottom entrance tile into solid wall
-}
-
-if (map5FloodRunning && tileM.currentMap == 5) {
-    map5FloodTimer++;
-    if (map5FloodTimer > 2) { // Adjust speed here if needed
-        map5FloodTimer = 0;
-        
-        // Sweep all the way down to column 1 (leaving the left border trees safe)
-        if (map5FloodCol >= 1) {
-            // Loop through all rows of this column
-            for (int r = 1; r < tileM.mapTileNum[5][map5FloodCol].length - 1; r++) {
-                tileM.mapTileNum[5][map5FloodCol][r] = 20; // Turn tile into water
-            }
-            map5FloodCol--; // Move left to the next column
-        } else {
-            map5FloodRunning = false; // Flood has covered the entire room!
+            tileM.mapTileNum[5][0][9] = 1;  
+            tileM.mapTileNum[5][0][10] = 1; 
         }
-    }
-}
+
+        if (map5FloodRunning && tileM.currentMap == 5) {
+            map5FloodTimer++;
+            if (map5FloodTimer > 2) { 
+                map5FloodTimer = 0;
+                
+                if (map5FloodCol >= 1) {
+                    for (int r = 1; r < tileM.mapTileNum[5][map5FloodCol].length - 1; r++) {
+                        tileM.mapTileNum[5][map5FloodCol][r] = 20; 
+                    }
+                    map5FloodCol--; 
+                } else {
+                    map5FloodRunning = false; 
+                }
+            }
+        }
         if (screenShakeCounter > 0) {
             screenShakeCounter--;
         }
@@ -233,22 +216,45 @@ if (map5FloodRunning && tileM.currentMap == 5) {
         else if (tileM.currentMap == 7) {
             if (!map7EntranceSealed) {
                 map7EntranceSealed = true;
-                // Permanently close the entrance path behind you on Map 7
                 tileM.mapTileNum[7][7][0] = 1;
                 tileM.mapTileNum[7][8][0] = 1;
             }
             
-            // Position the dying character in Map 7
             dyingNpc.x = tileSize * 8;
             dyingNpc.y = tileSize * 6;
 
-            // Check interaction with dying character
             int dx = Math.abs(player.x - dyingNpc.x);
             int dy = Math.abs(player.y - dyingNpc.y);
 
             if (dx < tileSize * 1.5 && dy < tileSize * 1.5 && keyH.enterPressed) {
                 keyH.enterPressed = false;
                 ui.startNPCDialogue("Dying Traveler", dyingNpc.dialogues);
+            }
+
+            // Widen the passage opening on the right wall once dialogue finishes
+            if (dyingNpc.dialogueFinished) {
+                for (int r = 4; r <= 6; r++) {
+                    tileM.mapTileNum[7][maxScreenCol - 1][r] = 0; 
+                }
+
+                if (player.x >= screenWidth - tileSize) {
+                    tileM.currentMap = 8;
+                    player.x = tileSize * 2;
+                    player.y = tileSize * 5;
+
+                    String[] map8Msg = {
+                        "You stepped through into Map 8..."
+                    };
+                    ui.startNPCDialogue("System", map8Msg);
+                }
+            }
+        }
+        else if (tileM.currentMap == 8) {
+            // Allow going back left to Map 7 through the wider passage
+            if (player.x <= 0) {
+                tileM.currentMap = 7;
+                player.x = screenWidth - (tileSize * 2);
+                player.y = tileSize * 5;
             }
         }
 
@@ -434,14 +440,12 @@ if (map5FloodRunning && tileM.currentMap == 5) {
                     player.y = tileSize * 9; 
                 }
 
-                // RIGHT PATHWAY LOCKED UNTIL ALL MAP 6 GLYPHS ARE SOLVED
                 if (player.x >= screenWidth - tileSize) {
                     boolean allGlyphsDone = ui.glyphSolved[2] && ui.glyphSolved[3] && ui.glyphSolved[4] && ui.glyphSolved[5];
                     if (allGlyphsDone) {
                         tileM.currentMap = 5; 
                         player.x = tileSize * 2;
                         
-                        // Set the oracle dialogue flag true and start dialogue
                         isOracleDialogue = true;
                         ui.startNPCDialogue("Oracle", oracleMap5Dialogue);
                     } else {
@@ -471,9 +475,6 @@ if (map5FloodRunning && tileM.currentMap == 5) {
                     ui.resetEarthquakePuzzle();
                 }
             }
-            // ==========================================
-            // MAP 6: TOP ROOM CORNER GLYPHS INTERACTION
-            // ==========================================
             else if (tileM.currentMap == 6) {
                 if (!map6OracleAppeared) {
                     map6OracleAppeared = true;
@@ -492,10 +493,10 @@ if (map5FloodRunning && tileM.currentMap == 5) {
                 int playerRow = player.y / tileSize;
 
                 int[][] glyphCoords = {
-                    {2, 2, 2},   // Glyph 2 at Col 2, Row 2
-                    {13, 2, 3},  // Glyph 3 at Col 13, Row 2
-                    {2, 9, 4},   // Glyph 4 at Col 2, Row 9
-                    {13, 9, 5}   // Glyph 5 at Col 13, Row 9
+                    {2, 2, 2},   
+                    {13, 2, 3},  
+                    {2, 9, 4},   
+                    {13, 9, 5}   
                 };
 
                 for (int[] gCoord : glyphCoords) {
@@ -546,7 +547,6 @@ if (map5FloodRunning && tileM.currentMap == 5) {
             oracle.draw(g2);
         }
 
-        // Draw Dying Character when on Map 7
         if (tileM.currentMap == 7) {
             dyingNpc.draw(g2);
         }

@@ -103,6 +103,11 @@ public class UI {
         } else {
             dialogueIndex = 0;
             
+            // Check if dying traveler conversation just finished
+            if (currentSpeaker.equals("Dying Traveler")) {
+                gp.dyingNpc.dialogueFinished = true;
+            }
+
             if (isFailureSequenceActive) {
                 isFailureSequenceActive = false;
                 executeFailTeleport();
@@ -316,7 +321,6 @@ public class UI {
                 drawOptions(g2, q5Opts);
             }
 
-            // Draw feedback message if active
             if (feedbackTimer > 0) {
                 feedbackTimer--;
                 g2.setFont(new Font("Arial", Font.BOLD, 16));
@@ -380,11 +384,8 @@ public class UI {
         }
     }
 
-    // ==========================================
-    // CORNER GLYPH CHALLENGES (GLYPHS 2, 3, 4, 5)
-    // ==========================================
     public int currentGlyphNumber = 2; 
-    public boolean[] glyphSolved = {false, false, false, false, false, false}; // Index 0 to 5
+    public boolean[] glyphSolved = {false, false, false, false, false, false}; 
     public int glyphCursor = 0;
     public int glyphCurrentQuestion = 0;
 
@@ -406,8 +407,6 @@ public class UI {
                 return;
             }
         }
-
-        // Oracle portrait drawing code removed here so the silhouette doesn't show up during the glyph challenge.
 
         g2.setColor(new Color(0, 0, 0, 220));
         g2.fillRect(gp.tileSize * 1, gp.tileSize * 1, gp.tileSize * 14, gp.tileSize * 10);
@@ -452,7 +451,6 @@ public class UI {
         String questionText = "";
         String[] options = {};
 
-        // 2nd Glyph Questions
         if (currentGlyphNumber == 2) {
             if (glyphCurrentQuestion == 0) {
                 questionText = "Q1: Are elevators and escalators safe to use during an earthquake?";
@@ -468,7 +466,6 @@ public class UI {
                 options = new String[]{"A. True", "B. False"};
             }
         } 
-        // 3rd Glyph Questions
         else if (currentGlyphNumber == 3) {
             if (glyphCurrentQuestion == 0) {
                 questionText = "Q1: Is standing near a window during an earthquake safe?";
@@ -487,7 +484,6 @@ public class UI {
                 options = new String[]{"A. True", "B. False"};
             }
         }
-        // 4th Glyph Questions
         else if (currentGlyphNumber == 4) {
             if (glyphCurrentQuestion == 0) {
                 questionText = "Q1: Is a doorway always the safest place to stand during an earthquake?";
@@ -503,7 +499,6 @@ public class UI {
                 options = new String[]{"A. Taking cover under a sturdy table", "B. Protecting your head", "C. Standing near windows", "D. Holding onto your shelter"};
             }
         }
-        // 5th Glyph Questions
         else if (currentGlyphNumber == 5) {
             if (glyphCurrentQuestion == 0) {
                 questionText = "Q1: If you are in a classroom during an earthquake, what should you do?";
@@ -561,7 +556,6 @@ public class UI {
                 else maxChoiceLimit = 3;
             }
 
-            // --- W / UP ---
             if (keyCode == java.awt.event.KeyEvent.VK_W || keyCode == java.awt.event.KeyEvent.VK_UP) {
                 if (isGlyphMode) {
                     glyphCursor--;
@@ -571,7 +565,6 @@ public class UI {
                     if (earthquakeCursor < 0) earthquakeCursor = 0;
                 }
             } 
-            // --- S / DOWN ---
             else if (keyCode == java.awt.event.KeyEvent.VK_S || keyCode == java.awt.event.KeyEvent.VK_DOWN) {
                 if (isGlyphMode) {
                     glyphCursor++;
@@ -581,7 +574,6 @@ public class UI {
                     if (earthquakeCursor > maxChoiceLimit) earthquakeCursor = maxChoiceLimit;
                 }
             }
-            // --- ENTER ---
             else if (keyCode == java.awt.event.KeyEvent.VK_ENTER) {
                 if (isGlyphMode) {
                     if (glyphSolved[currentGlyphNumber]) {

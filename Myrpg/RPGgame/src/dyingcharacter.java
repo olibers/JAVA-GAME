@@ -9,6 +9,7 @@ public class dyingcharacter {
     public int x, y;
     public BufferedImage image;
     public String[] dialogues = new String[5];
+    public boolean dialogueFinished = false; // Tracks if the dialogue has ended
     
     public dyingcharacter(GamePanel gp) {
         this.gp = gp;
