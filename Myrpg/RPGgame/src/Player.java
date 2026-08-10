@@ -122,11 +122,22 @@ if (gp.tileM.currentMap == 5) {
     int playerRow = y / gp.tileSize;
     
     // Check if player is standing on the green grass exit tile at the bottom right
-    // (Adjust these column and row numbers to match your exact exit tile location)
     if (playerCol >= 43 && playerCol <= 46 && playerRow >= 11) {
-        gp.tileM.currentMap = 7;          // Switch to your new Map 7
-        x = gp.tileSize * 7;              // Spawn player at X coordinate on Map 7
-        y = gp.tileSize * 2;              // Spawn player at Y coordinate on Map 7
+        gp.tileM.currentMap = 7;           // Switch to your new Map 7
+        x = gp.tileSize * 7;               // Spawn player at X coordinate on Map 7
+        y = gp.tileSize * 2;               // Spawn player at Y coordinate on Map 7
+        
+        // Trigger Map 7 Oracle Event & Close Entrance
+        if (!gp.map7EventDone) {
+            gp.gameState = gp.gameState = gp.dialogueState; // Pause game for dialogue
+            gp.ui.currentDialogue = "Oracle: A severe typhoon is approaching! Quick, find shelter before the floodwaters rise!";
+            
+            // Close the entrance path on Map 7 (turn entrance tiles into solid trees, Tile index 1)
+            gp.tileM.mapTileNum[7][7][0] = 1;
+            gp.tileM.mapTileNum[7][8][0] = 1;
+            
+            gp.map7EventDone = true; // Ensure this only triggers once
+        }
     }
 }
     }

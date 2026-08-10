@@ -21,6 +21,12 @@ public class GamePanel extends JPanel implements Runnable {
     public boolean villagePathUnlocked = false;
     public boolean earthquakePuzzleSolved = false; 
     
+    // Map 7 Entrance Seal Flag
+    public boolean map7EntranceSealed = false;
+    
+    // Dying Character for Map 7
+    public dyingcharacter dyingNpc = new dyingcharacter(this);
+    
     // --- CLASS LEVEL VARIABLES (Moved out of update method) ---
     public boolean isOracleDialogue = false;
     public String[] oracleMap5Dialogue = {
@@ -42,6 +48,7 @@ public class GamePanel extends JPanel implements Runnable {
     private Random shakeRandom = new Random();
     
     // Title/Setup State Flag
+    public boolean map7EventDone = false;
     private boolean namePromptShown = false;
     public boolean barrier1Cleared = false;
     public boolean barrier2Cleared = false;
@@ -222,6 +229,27 @@ if (map5FloodRunning && tileM.currentMap == 5) {
         else if (tileM.currentMap == 6 && player.y >= screenHeight) {
             tileM.currentMap = 3;
             player.y = tileSize; 
+        }
+        else if (tileM.currentMap == 7) {
+            if (!map7EntranceSealed) {
+                map7EntranceSealed = true;
+                // Permanently close the entrance path behind you on Map 7
+                tileM.mapTileNum[7][7][0] = 1;
+                tileM.mapTileNum[7][8][0] = 1;
+            }
+            
+            // Position the dying character in Map 7
+            dyingNpc.x = tileSize * 8;
+            dyingNpc.y = tileSize * 6;
+
+            // Check interaction with dying character
+            int dx = Math.abs(player.x - dyingNpc.x);
+            int dy = Math.abs(player.y - dyingNpc.y);
+
+            if (dx < tileSize * 1.5 && dy < tileSize * 1.5 && keyH.enterPressed) {
+                keyH.enterPressed = false;
+                ui.startNPCDialogue("Dying Traveler", dyingNpc.dialogues);
+            }
         }
 
         if (gameState == titleState) {
@@ -516,6 +544,11 @@ if (map5FloodRunning && tileM.currentMap == 5) {
 
         if (((tileM.currentMap == 0 && oracleAppeared && !hasBeenToDarkPlace) || (tileM.currentMap == 1) || (tileM.currentMap == 3 && villageOracleAppeared) || (tileM.currentMap == 6 && map6OracleAppeared)) && !oracleDisappeared) {
             oracle.draw(g2);
+        }
+
+        // Draw Dying Character when on Map 7
+        if (tileM.currentMap == 7) {
+            dyingNpc.draw(g2);
         }
 
         player.draw(g2);

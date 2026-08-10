@@ -407,14 +407,7 @@ public class UI {
             }
         }
 
-        if (currentSpeaker.equals("Oracle") && oraclePortrait != null) {
-            int portraitX = gp.tileSize * 1;
-            int portraitY = gp.tileSize * 1;
-            int portraitWidth = gp.tileSize * 6;
-            int portraitHeight = gp.tileSize * 8;
-            
-            g2.drawImage(oraclePortrait, portraitX, portraitY, portraitWidth, portraitHeight, null);
-        }
+        // Oracle portrait drawing code removed here so the silhouette doesn't show up during the glyph challenge.
 
         g2.setColor(new Color(0, 0, 0, 220));
         g2.fillRect(gp.tileSize * 1, gp.tileSize * 1, gp.tileSize * 14, gp.tileSize * 10);
@@ -656,9 +649,8 @@ public class UI {
             
             if (glyphCurrentQuestion >= maxQuestions) {
                 glyphSolved[currentGlyphNumber] = true;
-                glyphCurrentQuestion = 0; // <--- FIX 1: Reset question index so re-entry doesn't bug out
+                glyphCurrentQuestion = 0; 
                 
-                // Check if glyphs 2, 3, 4, and 5 are ALL solved now
                 boolean allTopSolved = glyphSolved[2] && glyphSolved[3] && glyphSolved[4] && glyphSolved[5];
                 
                 if (allTopSolved) {
@@ -681,7 +673,7 @@ public class UI {
                 feedbackTimer = 60; 
 
                 if (puzzleTimer <= 0) {
-                    puzzleTimer = maxPuzzleTime; // <--- FIX 2: Reset timer on timeout to avoid broken loops
+                    puzzleTimer = maxPuzzleTime; 
                     feedbackMessage = "Time's up! Try again.";
                     feedbackTimer = 90;
                 }
