@@ -317,9 +317,23 @@ public class GamePanel extends JPanel implements Runnable {
             }
         }
        else if (tileM.currentMap == 8) {
+        int maxCols = tileM.mapTileNum[8].length;
+            int maxRows = tileM.mapTileNum[8][0].length;
+
+            // 1. Build outer border trees and open inner grass
+            for (int c = 0; c < maxCols; c++) {
+                for (int r = 0; r < maxRows; r++) {
+                    if (c == 0 || c == maxCols - 1 || r == 0 || r == maxRows - 1) {
+                        tileM.mapTileNum[8][c][r] = 1; // Outer border trees
+                    } else {
+                        tileM.mapTileNum[8][c][r] = 0; // Open grass floor
+                    }
+                }
 
     int playerCol = player.x / tileSize;
     int playerRow = player.y / tileSize;
+
+    
 
     if (Math.abs(playerCol - 14) <= 1 &&
         Math.abs(playerRow - 5) <= 1 &&

@@ -13,6 +13,8 @@ public class TileManager {
     public int[][][] mapTileNum; // [mapIndex][col][row]
     public int currentMap = 0;
 
+    private BufferedImage fullHouse;
+
     public TileManager(GamePanel gp) {
         this.gp = gp;
         tile = new Tile[25];
@@ -43,7 +45,9 @@ public class TileManager {
         g2.dispose();
         tile[2].collision = false;
 
+        
         BufferedImage rawHouse = loadTexture("/assets/tiles/house.png", "assets/tiles/house.png", Color.ORANGE);
+        fullHouse = rawHouse;
         int subW = rawHouse.getWidth() / 3;
         int subH = rawHouse.getHeight() / 3;
 
@@ -276,8 +280,16 @@ for (int r = 0; r < gp.maxScreenRow; r++) {
     mapTileNum[8][15][r] = 1;
 }
 
-// Keep the brown entrance open
-mapTileNum[8][14][5] = 13;
+// =====================================================
+// MAP 8 - BUILDING ENTRANCE
+// =====================================================
+
+// Right-side building facade
+// =====================================================
+// MAP 8 - FULL BUILDING SILHOUETTE
+// =====================================================
+    
+
 
         // --- ADD RANDOM OBSTACLE TREES IN THE MIDDLE ---
        mapTileNum[8][5][2] = 1;
@@ -337,6 +349,25 @@ mapTileNum[8][14][5] = 13;
             drawSingleGlyph(g2, 2, 9, 4, playerCol, playerRow);
             drawSingleGlyph(g2, 13, 9, 5, playerCol, playerRow);
         }
+
+        // Draw the complete house as ONE object on Map 8
+if (currentMap == 8 && fullHouse != null) {
+
+    int houseX = 11 * gp.tileSize;
+    int houseY = 2 * gp.tileSize;
+
+    int houseWidth = gp.tileSize * 4;
+    int houseHeight = gp.tileSize * 4;
+
+    g2.drawImage(
+        fullHouse,
+        houseX,
+        houseY,
+        houseWidth,
+        houseHeight,
+        null
+    );
+}
     }
 
     private void drawSingleGlyph(Graphics2D g2, int col, int row, int glyphNum, int playerCol, int playerRow) {
