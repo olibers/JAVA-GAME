@@ -104,9 +104,23 @@ public class Player extends Entity {
         }
         // Return to Village from Left Map (Map 8 - if used elsewhere)
         else if (gp.tileM.currentMap == 8 && x > gp.tileSize * (gp.maxScreenCol - 1)) {
-            gp.tileM.currentMap = 3;
-            x = gp.tileSize;
-        }
+
+    int row = y / gp.tileSize;
+
+    // Right-side exit is only available after talking
+    // to the Dying Traveler in Map 7
+    if (gp.dyingNpc.dialogueFinished && row >= 4 && row <= 6) {
+
+        gp.tileM.currentMap = 9;
+
+        x = gp.tileSize * 2;
+        y = gp.tileSize * 5;
+
+    } else {
+        // Keep player inside Map 8
+        x = gp.tileSize * (gp.maxScreenCol - 1);
+    }
+}
         // Return to Village from Right Map (Map 9)
         else if (gp.tileM.currentMap == 9 && x < 0) {
             gp.tileM.currentMap = 3;

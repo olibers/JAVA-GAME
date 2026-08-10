@@ -128,11 +128,22 @@ else if (gp.gameState == gp.dialogueState) {
         
         // Question 3 Answers (Correct is 1)
         else if (gp.activeQuestion == 3) {
-            if (code == KeyEvent.VK_1 || code == KeyEvent.VK_NUMPAD1) {
-                gp.barrier3Cleared = true;
-                gp.waitingForAnswer = false;
-                gp.gameState = gp.playState;
-            } else if (code == KeyEvent.VK_2 || code == KeyEvent.VK_NUMPAD2) {
+    if (code == KeyEvent.VK_1 || code == KeyEvent.VK_NUMPAD1) {
+
+        // Correct answer
+        gp.barrier3Cleared = true;
+        gp.waitingForAnswer = false;
+        gp.gameState = gp.playState;
+
+        // ALL 3 QUESTIONS ARE CORRECT
+        if (gp.barrier1Cleared &&
+            gp.barrier2Cleared &&
+            gp.barrier3Cleared) {
+
+            gp.openMap5ExitPath();
+        }
+
+    } else if (code == KeyEvent.VK_2 || code == KeyEvent.VK_NUMPAD2) {
                 // --- WRONG ANSWER RESET ---
                 gp.barrier1Cleared = false;
                 gp.barrier2Cleared = false;

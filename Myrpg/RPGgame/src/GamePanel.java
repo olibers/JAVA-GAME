@@ -150,18 +150,18 @@ public class GamePanel extends JPanel implements Runnable {
 
     // Reset Map 5 questions and re-seal exit path if player retreats
     public void resetMap5Progress() {
-        barrier1Cleared = false;
-        barrier2Cleared = false;
-        barrier3Cleared = false;
-        waitingForAnswer = false;
-        
-        // Re-seal the bottom-right exit path on Map 5 (turn exit tiles back to solid/water index 1)
-        for (int c = 43; c <= 46; c++) {
-            if (c < tileM.mapTileNum[5].length) {
-                tileM.mapTileNum[5][c][maxScreenRow - 1] = 1;
-            }
+    barrier1Cleared = false;
+    barrier2Cleared = false;
+    barrier3Cleared = false;
+    waitingForAnswer = false;
+
+    // Keep Map 5 exit ALWAYS OPEN
+    for (int c = 43; c <= 46; c++) {
+        if (c < tileM.mapTileNum[5].length) {
+            tileM.mapTileNum[5][c][maxScreenRow - 1] = 0;
         }
     }
+}
 
     // Explicitly carve the bottom-right exit path on Map 5 when tasks are finished
     public void openMap5ExitPath() {
@@ -285,9 +285,8 @@ public class GamePanel extends JPanel implements Runnable {
         }
         else if (tileM.currentMap == 7) {
             // Immediately force the right-side exit path to be open
-            for (int r = 4; r <= 6; r++) {
-                tileM.mapTileNum[7][maxScreenCol - 1][r] = 0; 
-            }
+            
+            
             
             dyingNpc.x = tileSize * 8;
             dyingNpc.y = tileSize * 6;
@@ -317,38 +316,78 @@ public class GamePanel extends JPanel implements Runnable {
                 }
             }
         }
-        else if (tileM.currentMap == 8) {
-            if (!map8DialogueShown) {
-                map8DialogueShown = true;
-                String[] typhoonMsg = {
-                    "Winds of the typhoon are blowing fiercely!",
-                    "I need to reach that building door to take cover!"
-                };
-                ui.startNPCDialogue("System", typhoonMsg);
-            }
+       else if (tileM.currentMap == 8) {
 
-            if (player.x <= 0) {
-                tileM.currentMap = 7;
-                player.x = screenWidth - (tileSize * 2);
-                player.y = tileSize * 5;
-            }
+    int playerCol = player.x / tileSize;
+    int playerRow = player.y / tileSize;
 
-            int playerCol = player.x / tileSize;
-            int playerRow = player.y / tileSize;
+    if (Math.abs(playerCol - 14) <= 1 &&
+        Math.abs(playerRow - 5) <= 1 &&
+        keyH.enterPressed) {
 
-            if (playerCol == 14 && playerRow == 5 && keyH.enterPressed) {
-                keyH.enterPressed = false;
-                
-                tileM.currentMap = 9;
-                player.x = tileSize * 2;
-                player.y = tileSize * 5;
+        keyH.enterPressed = false;
 
-                String[] enterBuildingMsg = {
-                    "You managed to slip through the heavy winds and enter the building safely."
-                };
-                ui.startNPCDialogue("System", enterBuildingMsg);
-            }
+        tileM.currentMap = 9;
+        player.x = tileSize * 2;
+        player.y = tileSize * 5;
+
+        String[] enterBuildingMsg = {
+            "You managed to slip through the heavy winds and enter the building safely."
+        };
+
+        ui.startNPCDialogue("System", enterBuildingMsg);
+    }
+
+        
+
+    // Map 8 introduction
+    if (!map8DialogueShown) {
+        map8DialogueShown = true;
+
+        String[] typhoonMsg = {
+            "Winds of the typhoon are blowing fiercely!",
+            "I need to find a way through!"
+        };
+
+        ui.startNPCDialogue("System", typhoonMsg);
+    }
+
+    // Return to Map 7 through the LEFT side
+    if (player.x <= 0) {
+        tileM.currentMap = 7;
+        player.x = screenWidth - (tileSize * 2);
+        player.y = tileSize * 5;
+    }
+
+    // ----------------------------------------
+    // RIGHT EXIT OF MAP 8
+    // Only opens after talking to Dying Traveler
+    // ----------------------------------------
+    if (dyingNpc.dialogueFinished) {
+
+        // Open the trees on the right side
+        for (int r = 4; r <= 6; r++) {
+            tileM.mapTileNum[8][maxScreenCol - 1][r] = 0;
         }
+
+        // If player reaches the opened right exit
+        if (player.x >= screenWidth - tileSize) {
+
+            tileM.currentMap = 9;
+
+            // Spawn inside Map 9
+            player.x = tileSize * 2;
+            player.y = tileSize * 5;
+
+            String[] map9Msg = {
+                "You escaped the raging typhoon!",
+                "You have reached the next area."
+            };
+
+            ui.startNPCDialogue("System", map9Msg);
+        }
+    }
+}
 
         if (gameState == titleState) {
             if (!namePromptShown) {

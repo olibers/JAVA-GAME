@@ -262,6 +262,7 @@ public class TileManager {
                 }
             }
         }
+        
         // Widen left side opening for Map 8 (rows 4 to 6)
         for (int r = 4; r <= 6; r++) {
             mapTileNum[8][0][r] = 0;
@@ -269,6 +270,14 @@ public class TileManager {
 
         // Place the building door on the right wall of Map 8 (col 14, row 5)
         mapTileNum[8][14][5] = 13;
+
+        // Close the right side with trees
+for (int r = 0; r < gp.maxScreenRow; r++) {
+    mapTileNum[8][15][r] = 1;
+}
+
+// Keep the brown entrance open
+mapTileNum[8][14][5] = 13;
 
         // --- ADD RANDOM OBSTACLE TREES IN THE MIDDLE ---
        mapTileNum[8][5][2] = 1;
