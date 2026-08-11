@@ -1,215 +1,204 @@
 import javax.sound.sampled.*;
-import java.io.BufferedInputStream;
-import java.io.InputStream;
 
 public class AudioManager {
 
-    private Clip backgroundClip;
-    private Clip floodClip;
-    private Clip typhoonClip;
-    private Clip dialogueClip;
-    private Clip earthquakeClip;
+    private void setVolume(Clip clip, float volume) {
 
-    private String currentMusic = "";
+    if (clip == null) return;
 
-    public AudioManager() {
-        backgroundClip = loadSound("/assets/audio/background.wav");
-        floodClip = loadSound("/assets/audio/flood.wav");
-        typhoonClip = loadSound("/assets/audio/typhoon.wav");
-        dialogueClip = loadSound("/assets/audio/dialogue.wav");
-        earthquakeClip = loadSound("/assets/audio/earthquake.wav");
-    }
+    try {
 
-    private Clip loadSound(String path) {
-
-        try {
-
-            InputStream audioSrc = getClass().getResourceAsStream(path);
-
-            if (audioSrc == null) {
-                System.out.println("Audio not found: " + path);
-                return null;
-            }
-
-            InputStream bufferedIn =
-                    new BufferedInputStream(audioSrc);
-
-            AudioInputStream ais =
-                    AudioSystem.getAudioInputStream(bufferedIn);
-
-            Clip clip = AudioSystem.getClip();
-
-            clip.open(ais);
-
-            return clip;
-
-        } catch (Exception e) {
-
-            System.out.println(
-                "Could not load audio: " + path
+        FloatControl gainControl =
+            (FloatControl) clip.getControl(
+                FloatControl.Type.MASTER_GAIN
             );
 
-            e.printStackTrace();
+        gainControl.setValue(volume);
 
-            return null;
-        }
+    } catch (Exception e) {
+
+        System.out.println("Volume control not supported.");
+    }
     }
 
-    // ==========================================
-    // PLAY NORMAL BACKGROUND
-    // ==========================================
+
+    private Clip backgroundClip;
+    private Clip earthquakeClip;
+    private Clip typhoonClip;
+    private Clip dialogueClip;
+    private Clip floodClip;
+    
+
+    public AudioManager() {
+        backgroundClip = loadSound("/sound/background1.wav");
+        earthquakeClip = loadSound("/sound/earthquake.wav");
+        typhoonClip = loadSound("/sound/typhoon.wav");
+        dialogueClip = loadSound("/sound/dialogue.wav");
+        floodClip = loadSound("/sound/flood.wav");
+    }
+
+    private Clip loadSound(String audioPath) {
+    try {
+        java.net.URL soundURL = getClass().getResource(audioPath);
+        if (soundURL != null) {
+            javax.sound.sampled.AudioInputStream ais = javax.sound.sampled.AudioSystem.getAudioInputStream(soundURL);
+            Clip clip = javax.sound.sampled.AudioSystem.getClip();
+            clip.open(ais);
+            return clip;
+        } else {
+            System.out.println("Sound not found: " + audioPath);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return null;
+    }   
+    // =========================================
+    // BACKGROUND MUSIC
+    // =========================================
 
     public void playBackground() {
 
-        if (currentMusic.equals("background")) {
-            return;
-        }
+    if (backgroundClip == null) return;
 
-        stopAllMusic();
+    setVolume(backgroundClip, 0.20f);
+
+    if (!backgroundClip.isRunning()) {
+
+        backgroundClip.setFramePosition(0);
+
+        backgroundClip.loop(Clip.LOOP_CONTINUOUSLY);
+
+        backgroundClip.start();
+    }
+}
+
+    public void stopBackground() {
 
         if (backgroundClip != null) {
-
-            backgroundClip.setFramePosition(0);
-
-            backgroundClip.loop(Clip.LOOP_CONTINUOUSLY);
-
-            backgroundClip.start();
-
-            currentMusic = "background";
+            backgroundClip.stop();
         }
     }
 
-    // ==========================================
-    // PLAY FLOOD MUSIC
-    // ==========================================
-
-    public void playFlood() {
-
-        if (currentMusic.equals("flood")) {
-            return;
-        }
-
-        stopAllMusic();
-
-        if (floodClip != null) {
-
-            floodClip.setFramePosition(0);
-
-            floodClip.loop(Clip.LOOP_CONTINUOUSLY);
-
-            floodClip.start();
-
-            currentMusic = "flood";
-        }
-    }
-
-    // ==========================================
-    // PLAY TYPHOON MUSIC
-    // ==========================================
+    // =========================================
+    // TYPHOON
+    // =========================================
 
     public void playTyphoon() {
 
-        if (currentMusic.equals("typhoon")) {
-            return;
-        }
+    stopAllEffects();
 
-        stopAllMusic();
+    if (typhoonClip != null) {
 
-        if (typhoonClip != null) {
+        setVolume(typhoonClip, -10.0f);
 
-            typhoonClip.setFramePosition(0);
+        typhoonClip.setFramePosition(0);
 
-            typhoonClip.loop(Clip.LOOP_CONTINUOUSLY);
+        typhoonClip.loop(
+            Clip.LOOP_CONTINUOUSLY
+        );
 
-            typhoonClip.start();
-
-            currentMusic = "typhoon";
-        }
+        typhoonClip.start();
     }
+}
 
-    // ==========================================
-    // DIALOGUE SOUND
-    // ==========================================
+    // =========================================
+    // FLOOD
+    // =========================================
 
-    public void playDialogue() {
+    public void playFlood() {
 
-        if (dialogueClip != null) {
+    stopAllEffects();
 
-            dialogueClip.stop();
+    if (floodClip != null) {
 
-            dialogueClip.setFramePosition(0);
+        setVolume(floodClip, -10.0f);
 
-            dialogueClip.loop(Clip.LOOP_CONTINUOUSLY)
-            dialogueClip.start();
-        }
+        floodClip.setFramePosition(0);
+
+        floodClip.loop(
+            Clip.LOOP_CONTINUOUSLY
+        );
+
+        floodClip.start();
     }
+}
 
-    public void stopDialogue() {
-
-        if (dialogueClip != null) {
-
-            dialogueClip.stop();
-
-            dialogueClip.setFramePosition(0);
-        }
-    }
-
-    // ==========================================
-    // EARTHQUAKE SOUND
-    // ==========================================
+    // =========================================
+    // EARTHQUAKE
+    // =========================================
 
     public void playEarthquake() {
 
-        if (earthquakeClip != null) {
+    stopAllEffects();
 
-            earthquakeClip.stop();
+    if (earthquakeClip != null) {
 
-            earthquakeClip.setFramePosition(0);
+        setVolume(earthquakeClip, -10.0f);
 
-            earthquakeClip.loop(Clip.LOOP_CONTINUOUSLY);
+        earthquakeClip.setFramePosition(0);
 
-            earthquakeClip.start();
-        }
+        earthquakeClip.start();
     }
+}
 
-    public void stopEarthquake() {
+    // =========================================
+    // DIALOGUE
+    // =========================================
 
-        if (earthquakeClip != null) {
+    public void playDialogue() {
 
-            earthquakeClip.stop();
+    if (dialogueClip != null) {
 
-            earthquakeClip.setFramePosition(0);
-        }
+        setVolume(dialogueClip, -10.0f);
+
+        dialogueClip.setFramePosition(0);
+
+        dialogueClip.start();
     }
+}
 
-    // ==========================================
-    // STOP ALL MUSIC
-    // ==========================================
+    // =========================================
+    // STOP EFFECTS
+    // =========================================
 
-    public void stopAllMusic() {
+    public void stopAllEffects() {
 
-        if (backgroundClip != null)
-            backgroundClip.stop();
-
-        if (floodClip != null)
-            floodClip.stop();
-
-        if (typhoonClip != null)
+        if (typhoonClip != null) {
             typhoonClip.stop();
+        }
 
-        currentMusic = "";
+        if (floodClip != null) {
+            floodClip.stop();
+        }
+
+        if (earthquakeClip != null) {
+            earthquakeClip.stop();
+        }
+
+        if (dialogueClip != null) {
+            dialogueClip.stop();
+        }
     }
 
-    // ==========================================
-    // STOP EVERYTHING
-    // ==========================================
 
-    public void stopAll() {
 
-        stopAllMusic();
+    // =================================================
+// VOLUME CONTROL
+// =================================================
 
-        stopDialogue();
+public void setBackgroundVolume(float volume) {
 
-        stopEarthquake();
-    }
+    setVolume(backgroundClip, volume);
+}
+
+public void setEffectsVolume(float volume) {
+
+    setVolume(typhoonClip, volume);
+    setVolume(floodClip, volume);
+    setVolume(earthquakeClip, volume);
+    setVolume(dialogueClip, volume);
+}
+
+
 }

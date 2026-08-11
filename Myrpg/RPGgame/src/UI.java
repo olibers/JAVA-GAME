@@ -108,6 +108,7 @@ public class UI {
     }
 
     public void startNPCDialogue(String speaker, String[] dialogues) {
+        gp.audio.playDialogue();
         if (dialogues == null || dialogues.length == 0) {
             return;
         }

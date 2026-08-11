@@ -560,6 +560,10 @@ for (int r = 0; r < gp.maxScreenRow; r++) {
             drawSingleGlyph(g2, 13, 9, 5, playerCol, playerRow);
         }
 
+        if (currentMap == 4) {
+            drawMap4Glyph(g2);
+        }
+
         // Draw the complete house as ONE object on Map 8
 if (currentMap == 8 && fullHouse != null) {
 

@@ -12,13 +12,19 @@ public class GamePanel extends JPanel implements Runnable {
     public boolean map6OracleAppeared = false;
     public boolean guideBookReadyToClose = false;
     public boolean map4GlyphSolved = false;
-    public AudioManager audio;
+
+    public AudioManager audio = new AudioManager();
 
     // MAP 8 ORACLE
     public boolean map8OracleInteracted = false;
     public boolean map8OracleAppeared = false;
     boolean map6IntroTriggered = false;
-    
+
+    public boolean typhoonSoundPlaying = false;
+    public boolean earthquakeSoundPlaying = false;
+    public boolean dialogueSoundPlaying = false;
+
+    public int previousGameState = -1;
 
     public int treesChopped = 0;
     public final int MAX_TREES_TO_CHOP = 3;
@@ -35,7 +41,8 @@ public class GamePanel extends JPanel implements Runnable {
     public boolean map7EntranceSealed = false;
     public boolean map8DialogueShown = false;
 
-    public dyingcharacter dyingNpc = new dyingcharacter(this);
+    public dyingcharacter dyingNpc =
+        new dyingcharacter(this);
 
     // =====================================================
     // WIND PARTICLES
@@ -111,6 +118,20 @@ public class GamePanel extends JPanel implements Runnable {
 
     private boolean namePromptShown = false;
 
+    public boolean settingsOpen = false;
+
+    public float backgroundVolume = 0.5f;
+    public float effectsVolume = 0.5f;
+
+    public int musicSliderX = 930;
+    public int musicSliderY = 180;
+
+    public int effectsSliderX = 930;
+    public int effectsSliderY = 260;
+
+    public int sliderWidth = 200;
+    public int sliderHeight = 20;
+
     public boolean barrier1Cleared = false;
     public boolean barrier2Cleared = false;
     public boolean barrier3Cleared = false;
@@ -181,7 +202,7 @@ public class GamePanel extends JPanel implements Runnable {
     public final int cutsceneState = 2;
     public final int dialogueState = 3;
     public final int puzzleState = 4;
-    public final int creditsState = 5; // (Use whatever number comes next in your sequence)
+    public final int creditsState = 5;
 
     // =====================================================
     // CONSTRUCTOR
@@ -202,10 +223,100 @@ public class GamePanel extends JPanel implements Runnable {
 
         this.addKeyListener(keyH);
 
-        this.setFocusable(true);
+        this.addMouseListener(new java.awt.event.MouseAdapter() {
+
+    @Override
+    public void mousePressed(java.awt.event.MouseEvent e) {
+
+        int mouseX = e.getX();
+        int mouseY = e.getY();
+
+        // =========================================
+        // SETTINGS BUTTON
+        // =========================================
+
+        if (
+            gameState == playState &&
+            mouseX >= screenWidth - 150 &&
+            mouseX <= screenWidth - 20 &&
+            mouseY >= 20 &&
+            mouseY <= 60
+        ) {
+
+            settingsOpen = !settingsOpen;
+
+            return;
+        }
+
+        // =========================================
+        // CLOSE SETTINGS
+        // =========================================
+
+        if (
+            settingsOpen &&
+            mouseX >= screenWidth - 150 &&
+            mouseX <= screenWidth - 30 &&
+            mouseY >= 350 &&
+            mouseY <= 390
+        ) {
+
+            settingsOpen = false;
+
+            return;
+        }
+
+        // =========================================
+        // BACKGROUND MUSIC SLIDER
+        // =========================================
+
+        if (
+            settingsOpen &&
+            mouseX >= musicSliderX &&
+            mouseX <= musicSliderX + sliderWidth &&
+            mouseY >= musicSliderY - 10 &&
+            mouseY <= musicSliderY + sliderHeight + 10
+        ) {
+
+            backgroundVolume =
+                (float)
+                (mouseX - musicSliderX)
+                / sliderWidth;
+
+            audio.setBackgroundVolume(
+                backgroundVolume
+            );
+
+            return;
+        }
+
+        // =========================================
+        // EFFECTS SLIDER
+        // =========================================
+
+        if (
+            settingsOpen &&
+            mouseX >= effectsSliderX &&
+            mouseX <= effectsSliderX + sliderWidth &&
+            mouseY >= effectsSliderY - 10 &&
+            mouseY <= effectsSliderY + sliderHeight + 10
+        ) {
+
+            effectsVolume =
+                (float)
+                (mouseX - effectsSliderX)
+                / sliderWidth;
+
+            audio.setEffectsVolume(
+                effectsVolume
+            );
+        }
+    }
+});
 
         this.requestFocusInWindow();
 
+        audio = new AudioManager();
+        audio.playBackground();
         // Initialize wind animation particles
         for (
             int i = 0;
@@ -232,6 +343,9 @@ public class GamePanel extends JPanel implements Runnable {
     public void setupGame() {
 
         gameState = titleState;
+
+        // Start background music
+        audio.playBackground();
 
         oracle.name = "Oracle";
 
@@ -271,35 +385,45 @@ public class GamePanel extends JPanel implements Runnable {
             durationFrames;
     }
 
+    public void triggerEarthquake(int durationFrames) {
+
+        this.screenShakeCounter =
+            durationFrames;
+
+        earthquakeSoundPlaying = true;
+
+        audio.playEarthquake();
+    }
+
     // =====================================================
     // OPEN VILLAGE PATH
     // =====================================================
 
     public void openVillagePath() {
 
-    if (!villagePathUnlocked) {
+        if (!villagePathUnlocked) {
 
-        villagePathUnlocked = true;
+            villagePathUnlocked = true;
 
-        tileM.mapTileNum[0][7][0] = 0;
-        tileM.mapTileNum[0][8][0] = 0;
-        tileM.mapTileNum[0][9][0] = 0;
+            tileM.mapTileNum[0][7][0] = 0;
+            tileM.mapTileNum[0][8][0] = 0;
+            tileM.mapTileNum[0][9][0] = 0;
 
-        String[] pathMsg = {
+            String[] pathMsg = {
 
-            "As you finish reading the guide, a heavy rumbling echoes through the forest!",
+                "As you finish reading the guide, a heavy rumbling echoes through the forest!",
 
-            "The trees blocking the northern path have cleared!",
+                "The trees blocking the northern path have cleared!",
 
-            "Follow the long road north to reach your house"
-        };
+                "Follow the long road north to reach your house"
+            };
 
-        ui.startNPCDialogue(
-            "System",
-            pathMsg
-        );
+            ui.startNPCDialogue(
+                "System",
+                pathMsg
+            );
+        }
     }
-}
 
     // =====================================================
     // RESET MAP 5
@@ -466,6 +590,9 @@ public class GamePanel extends JPanel implements Runnable {
 
             map5FloodRunning = true;
 
+            // Start looping flood sound
+            audio.playFlood();
+
             map5FloodCol =
                 tileM.mapTileNum[5].length - 2;
 
@@ -509,6 +636,9 @@ public class GamePanel extends JPanel implements Runnable {
                 } else {
 
                     map5FloodRunning = false;
+
+                    // STOP FLOOD SOUND
+                    audio.stopAllEffects();
                 }
             }
         }
@@ -520,6 +650,18 @@ public class GamePanel extends JPanel implements Runnable {
         if (screenShakeCounter > 0) {
 
             screenShakeCounter--;
+
+            if (screenShakeCounter <= 0) {
+
+                if (earthquakeSoundPlaying) {
+
+                    earthquakeSoundPlaying = false;
+
+                    if (audio != null) {
+                        audio.stopAllEffects();
+                    }
+                }
+            }
         }
 
         // =================================================
@@ -703,6 +845,9 @@ public class GamePanel extends JPanel implements Runnable {
                     player.y =
                         tileSize * 5;
 
+                    audio.playTyphoon();
+                    typhoonSoundPlaying = true;
+
                     // Reset Map 8 Oracle interaction
                     map8OracleInteracted = false;
                     map8OracleAppeared = false;
@@ -727,6 +872,13 @@ public class GamePanel extends JPanel implements Runnable {
         else if (
             tileM.currentMap == 8
         ) {
+
+            if (!typhoonSoundPlaying) {
+
+                typhoonSoundPlaying = true;
+
+                audio.playTyphoon();
+            }
 
             // ---------------------------------------------
             // SMALL ORACLE POSITION
@@ -794,6 +946,9 @@ public class GamePanel extends JPanel implements Runnable {
 
             if (player.x <= 0) {
 
+                audio.stopAllEffects();
+                typhoonSoundPlaying = false;
+
                 tileM.currentMap = 7;
 
                 player.x =
@@ -804,6 +959,42 @@ public class GamePanel extends JPanel implements Runnable {
                     tileSize * 5;
             }
         }
+
+        // =================================================
+        // DIALOGUE AUDIO
+        // =================================================
+
+        if (
+            gameState == dialogueState &&
+            previousGameState != dialogueState
+        ) {
+
+            dialogueSoundPlaying = true;
+
+            audio.playDialogue();
+        }
+
+        if (
+            gameState != dialogueState &&
+            previousGameState == dialogueState
+        ) {
+
+            dialogueSoundPlaying = false;
+
+            if (audio != null) {
+                audio.stopAllEffects();
+            }
+
+            // Restore Map 8 typhoon sound
+            if (tileM.currentMap == 8) {
+
+                typhoonSoundPlaying = true;
+
+                audio.playTyphoon();
+            }
+        }
+
+        previousGameState = gameState;
 
         // =================================================
         // GAME STATE
@@ -1117,41 +1308,41 @@ public class GamePanel extends JPanel implements Runnable {
                         );
 
                     if (
-    bdx < tileSize * 1.5 &&
-    bdy < tileSize * 1.5 &&
-    keyH.enterPressed
-) {
+                        bdx < tileSize * 1.5 &&
+                        bdy < tileSize * 1.5 &&
+                        keyH.enterPressed
+                    ) {
 
-    keyH.enterPressed = false;
+                        keyH.enterPressed = false;
 
-    guideBook.visible = false;
+                        guideBook.visible = false;
 
-    possessesGuideBook = true;
+                        possessesGuideBook = true;
 
-    // Keep the guide book CLOSED
-    keyH.bookPressed = false;
+                        // Keep the guide book CLOSED
+                        keyH.bookPressed = false;
 
-    tileM.currentMap = 0;
+                        tileM.currentMap = 0;
 
-    player.x = tileSize * 7;
-    player.y = tileSize * 5;
+                        player.x = tileSize * 7;
+                        player.y = tileSize * 5;
 
-    String[] returnMsg = {
+                        String[] returnMsg = {
 
-        "You picked up the [Disaster Preparedness Guide Book]!",
+                            "You picked up the [Disaster Preparedness Guide Book]!",
 
-        "A blinding flash of light surrounds you...",
+                            "A blinding flash of light surrounds you...",
 
-        "You were teleported back to the forest!",
+                            "You were teleported back to the forest!",
 
-        "Press [B] to open and read your Disaster Preparedness Guide!"
-    };
+                            "Press [B] to open and read your Disaster Preparedness Guide!"
+                        };
 
-    ui.startNPCDialogue(
-        "System",
-        returnMsg
-    );
-}
+                        ui.startNPCDialogue(
+                            "System",
+                            returnMsg
+                        );
+                    }
                 }
             }
 
@@ -1349,16 +1540,22 @@ public class GamePanel extends JPanel implements Runnable {
                 tileM.currentMap == 6
             ) {
 
-
                 if (!map6IntroTriggered) {
-                map6IntroTriggered = true;
-                
-                String[] oracleMap6Dialogue = {
-                    "Welcome to the Inner Sanctum...",
-                    "You must face the four corner glyph challenges to proceed!"
-                };
-                ui.startNPCDialogue("Oracle", oracleMap6Dialogue);
-            }
+
+                    map6IntroTriggered = true;
+
+                    String[] oracleMap6Dialogue = {
+
+                        "Welcome to the Inner Sanctum...",
+
+                        "You must face the four corner glyph challenges to proceed!"
+                    };
+
+                    ui.startNPCDialogue(
+                        "Oracle",
+                        oracleMap6Dialogue
+                    );
+                }
 
                 int playerCol =
                     player.x / tileSize;
@@ -1446,8 +1643,6 @@ public class GamePanel extends JPanel implements Runnable {
 
     @Override
     public void paintComponent(Graphics g) {
-
-        
 
         super.paintComponent(g);
 
@@ -1775,39 +1970,56 @@ public class GamePanel extends JPanel implements Runnable {
             );
         }
 
-        else if (tileM.currentMap == 4) {
+        else if (
+            tileM.currentMap == 4
+        ) {
 
-    if (player.x >= screenWidth - tileSize) {
+            if (
+                player.x >=
+                screenWidth - tileSize
+            ) {
 
-        tileM.currentMap = 3;
+                tileM.currentMap = 3;
 
-        player.x = tileSize * 2;
-        player.y = tileSize * 9;
-    }
+                player.x =
+                    tileSize * 2;
 
-    int glyphX = tileSize * 4;
-    int glyphY = tileSize * 6;
+                player.y =
+                    tileSize * 9;
+            }
 
-    int distance =
-        Math.abs(player.x - glyphX)
-        + Math.abs(player.y - glyphY);
+            int glyphX =
+                tileSize * 4;
 
-    if (
-        distance < tileSize &&
-        keyH.enterPressed
-    ) {
+            int glyphY =
+                tileSize * 6;
 
-        keyH.enterPressed = false;
+            int distance =
+                Math.abs(
+                    player.x - glyphX
+                )
+                +
+                Math.abs(
+                    player.y - glyphY
+                );
 
-        // Only allow the puzzle to open if it is NOT solved
-        if (!ui.earthquakeSolved) {
+            if (
+                distance < tileSize &&
+                keyH.enterPressed
+            ) {
 
-            gameState = puzzleState;
+                keyH.enterPressed = false;
 
-            ui.resetEarthquakePuzzle();
+                // Only allow the puzzle to open if it is NOT solved
+                if (!ui.earthquakeSolved) {
+
+                    gameState =
+                        puzzleState;
+
+                    ui.resetEarthquakePuzzle();
+                }
+            }
         }
-    }
-}
 
         else if (
             tileM.currentMap == 0 &&
@@ -1848,10 +2060,11 @@ public class GamePanel extends JPanel implements Runnable {
         // UI STATES
         // =================================================
 
-        if (gameState == puzzleState 
-            && tileM.currentMap == 8
-            ) {
-            
+        if (
+            gameState == puzzleState &&
+            tileM.currentMap == 8
+        ) {
+
             ui.drawOracleQuestion(g2);
         }
 
@@ -1890,13 +2103,13 @@ public class GamePanel extends JPanel implements Runnable {
                 ui.drawGlyphPuzzle(g2);
             }
         }
-            else if (
-                gameState == creditsState
-            ) {
-                
-                ui.drawCredits(g2);
-            
-            }
+
+        else if (
+            gameState == creditsState
+        ) {
+
+            ui.drawCredits(g2);
+        }
 
         // =================================================
         // GUIDE BOOK UI
@@ -1909,6 +2122,15 @@ public class GamePanel extends JPanel implements Runnable {
 
             ui.drawGuideBookUI(g2);
         }
+
+        // =================================================
+// SETTINGS BUTTON
+// =================================================
+
+
+        
+
+
 
         g2.dispose();
     }
