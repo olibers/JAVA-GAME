@@ -10,12 +10,14 @@ public class GamePanel extends JPanel implements Runnable {
 
     public boolean villageOracleAppeared = false;
     public boolean map6OracleAppeared = false;
+
+    // MAP 8 ORACLE
     public boolean map8OracleInteracted = false;
+    public boolean map8OracleAppeared = false;
 
     public int treesChopped = 0;
     public final int MAX_TREES_TO_CHOP = 3;
 
-    public boolean map8OracleAppeared = false;
     public boolean oracleAppeared = false;
     public boolean hasBeenToDarkPlace = false;
     public boolean oracleDisappeared = false;
@@ -34,9 +36,16 @@ public class GamePanel extends JPanel implements Runnable {
     // =====================================================
 
     private class WindParticle {
+
         int x, y, speed, length;
 
-        WindParticle(int x, int y, int speed, int length) {
+        WindParticle(
+            int x,
+            int y,
+            int speed,
+            int length
+        ) {
+
             this.x = x;
             this.y = y;
             this.speed = speed;
@@ -44,8 +53,11 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
-    private WindParticle[] windParticles = new WindParticle[40];
-    private Random particleRandom = new Random();
+    private WindParticle[] windParticles =
+        new WindParticle[40];
+
+    private Random particleRandom =
+        new Random();
 
     // =====================================================
     // ORACLE
@@ -54,10 +66,15 @@ public class GamePanel extends JPanel implements Runnable {
     public boolean isOracleDialogue = false;
 
     public String[] oracleMap5Dialogue = {
+
         "The right pathway unlocks as the inner sanctum's glyphs glow brightly!",
+
         "You proceed forward...",
+
         "Oracle: Ah, you have stepped into this final path...",
+
         "Oracle: I must admit, I am quite impressed by your learning and resilience.",
+
         "Oracle: But do not celebrate just yet—my deeds and trials for you are far from over."
     };
 
@@ -67,6 +84,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     public boolean map5FloodTriggered = false;
     public boolean map5FloodRunning = false;
+
     public int map5FloodCol = 0;
     public int map5FloodTimer = 0;
 
@@ -75,13 +93,16 @@ public class GamePanel extends JPanel implements Runnable {
     // =====================================================
 
     public int screenShakeCounter = 0;
-    private Random shakeRandom = new Random();
+
+    private Random shakeRandom =
+        new Random();
 
     // =====================================================
     // OTHER VARIABLES
     // =====================================================
 
     public boolean map7EventDone = false;
+
     private boolean namePromptShown = false;
 
     public boolean barrier1Cleared = false;
@@ -102,29 +123,44 @@ public class GamePanel extends JPanel implements Runnable {
     final int originalTileSize = 16;
     final int scale = 3;
 
-    public final int tileSize = originalTileSize * scale;
+    public final int tileSize =
+        originalTileSize * scale;
 
     public final int maxScreenCol = 16;
     public final int maxScreenRow = 12;
 
-    public final int screenWidth = tileSize * maxScreenCol;
-    public final int screenHeight = tileSize * maxScreenRow;
+    public final int screenWidth =
+        tileSize * maxScreenCol;
+
+    public final int screenHeight =
+        tileSize * maxScreenRow;
 
     // =====================================================
     // GAME OBJECTS
     // =====================================================
 
-    public TileManager tileM = new TileManager(this);
-    public KeyHandler keyH = new KeyHandler(this);
+    public TileManager tileM =
+        new TileManager(this);
+
+    public KeyHandler keyH =
+        new KeyHandler(this);
 
     Thread gameThread;
 
-    public CollisionChecker cChecker = new CollisionChecker(this);
-    public UI ui = new UI(this);
+    public CollisionChecker cChecker =
+        new CollisionChecker(this);
 
-    public Player player = new Player(this, keyH);
-    public NPC oracle = new NPC(this);
-    public BookItem guideBook = new BookItem(this, 8, 6);
+    public UI ui =
+        new UI(this);
+
+    public Player player =
+        new Player(this, keyH);
+
+    public NPC oracle =
+        new NPC(this);
+
+    public BookItem guideBook =
+        new BookItem(this, 8, 6);
 
     // =====================================================
     // GAME STATES
@@ -144,23 +180,37 @@ public class GamePanel extends JPanel implements Runnable {
 
     public GamePanel() {
 
-        this.setPreferredSize(new Dimension(screenWidth, screenHeight));
+        this.setPreferredSize(
+            new Dimension(
+                screenWidth,
+                screenHeight
+            )
+        );
+
         this.setBackground(Color.black);
+
         this.setDoubleBuffered(true);
 
         this.addKeyListener(keyH);
+
         this.setFocusable(true);
+
         this.requestFocusInWindow();
 
         // Initialize wind animation particles
-        for (int i = 0; i < windParticles.length; i++) {
+        for (
+            int i = 0;
+            i < windParticles.length;
+            i++
+        ) {
 
-            windParticles[i] = new WindParticle(
-                particleRandom.nextInt(screenWidth),
-                particleRandom.nextInt(screenHeight),
-                particleRandom.nextInt(8) + 10,
-                particleRandom.nextInt(20) + 15
-            );
+            windParticles[i] =
+                new WindParticle(
+                    particleRandom.nextInt(screenWidth),
+                    particleRandom.nextInt(screenHeight),
+                    particleRandom.nextInt(8) + 10,
+                    particleRandom.nextInt(20) + 15
+                );
         }
 
         setupGame();
@@ -176,8 +226,11 @@ public class GamePanel extends JPanel implements Runnable {
 
         oracle.name = "Oracle";
 
-        oracle.x = tileSize * 8;
-        oracle.y = tileSize * 4;
+        oracle.x =
+            tileSize * 8;
+
+        oracle.y =
+            tileSize * 4;
 
         oracle.dialogues = new String[] {
 
@@ -204,7 +257,9 @@ public class GamePanel extends JPanel implements Runnable {
     // =====================================================
 
     public void triggerScreenShake(int durationFrames) {
-        this.screenShakeCounter = durationFrames;
+
+        this.screenShakeCounter =
+            durationFrames;
     }
 
     // =====================================================
@@ -230,7 +285,10 @@ public class GamePanel extends JPanel implements Runnable {
                 "Follow the long road north to reach your house"
             };
 
-            ui.startNPCDialogue("System", pathMsg);
+            ui.startNPCDialogue(
+                "System",
+                pathMsg
+            );
         }
     }
 
@@ -246,10 +304,16 @@ public class GamePanel extends JPanel implements Runnable {
 
         waitingForAnswer = false;
 
-        // Keep Map 5 exit ALWAYS OPEN
-        for (int c = 43; c <= 46; c++) {
+        for (
+            int c = 43;
+            c <= 46;
+            c++
+        ) {
 
-            if (c < tileM.mapTileNum[5].length) {
+            if (
+                c <
+                tileM.mapTileNum[5].length
+            ) {
 
                 tileM.mapTileNum[5][c][maxScreenRow - 1] = 0;
             }
@@ -262,9 +326,16 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void openMap5ExitPath() {
 
-        for (int c = 43; c <= 46; c++) {
+        for (
+            int c = 43;
+            c <= 46;
+            c++
+        ) {
 
-            if (c < tileM.mapTileNum[5].length) {
+            if (
+                c <
+                tileM.mapTileNum[5].length
+            ) {
 
                 tileM.mapTileNum[5][c][maxScreenRow - 1] = 0;
             }
@@ -277,7 +348,9 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void startGameThread() {
 
-        gameThread = new Thread(this);
+        gameThread =
+            new Thread(this);
+
         gameThread.start();
     }
 
@@ -288,22 +361,30 @@ public class GamePanel extends JPanel implements Runnable {
     @Override
     public void run() {
 
-        double drawInterval = 1000000000 / 60;
+        double drawInterval =
+            1000000000 / 60;
+
         double delta = 0;
 
-        long lastTime = System.nanoTime();
+        long lastTime =
+            System.nanoTime();
 
         while (gameThread != null) {
 
-            long currentTime = System.nanoTime();
+            long currentTime =
+                System.nanoTime();
 
-            delta += (currentTime - lastTime) / drawInterval;
+            delta +=
+                (currentTime - lastTime)
+                / drawInterval;
 
-            lastTime = currentTime;
+            lastTime =
+                currentTime;
 
             if (delta >= 1) {
 
                 update();
+
                 repaint();
 
                 delta--;
@@ -323,16 +404,26 @@ public class GamePanel extends JPanel implements Runnable {
 
         if (tileM.currentMap == 8) {
 
-            for (int i = 0; i < windParticles.length; i++) {
+            for (
+                int i = 0;
+                i < windParticles.length;
+                i++
+            ) {
 
-                windParticles[i].x -= windParticles[i].speed;
+                windParticles[i].x -=
+                    windParticles[i].speed;
 
-                if (windParticles[i].x < 0) {
+                if (
+                    windParticles[i].x < 0
+                ) {
 
-                    windParticles[i].x = screenWidth;
+                    windParticles[i].x =
+                        screenWidth;
 
                     windParticles[i].y =
-                        particleRandom.nextInt(screenHeight);
+                        particleRandom.nextInt(
+                            screenHeight
+                        );
                 }
             }
         }
@@ -343,22 +434,27 @@ public class GamePanel extends JPanel implements Runnable {
 
         if (tileM.currentMap == 8) {
 
-            player.speed = player.defaultSpeed / 2;
+            player.speed =
+                player.defaultSpeed / 2;
 
         } else {
 
-            player.speed = player.defaultSpeed;
+            player.speed =
+                player.defaultSpeed;
         }
 
         // =================================================
         // MAP 5 ORACLE FLOOD
         // =================================================
 
-        if (isOracleDialogue &&
+        if (
+            isOracleDialogue &&
             gameState == playState &&
-            !map5FloodTriggered) {
+            !map5FloodTriggered
+        ) {
 
             map5FloodTriggered = true;
+
             map5FloodRunning = true;
 
             map5FloodCol =
@@ -374,8 +470,10 @@ public class GamePanel extends JPanel implements Runnable {
         // MAP 5 FLOOD ANIMATION
         // =================================================
 
-        if (map5FloodRunning &&
-            tileM.currentMap == 5) {
+        if (
+            map5FloodRunning &&
+            tileM.currentMap == 5
+        ) {
 
             map5FloodTimer++;
 
@@ -387,11 +485,14 @@ public class GamePanel extends JPanel implements Runnable {
 
                     for (
                         int r = 1;
-                        r < tileM.mapTileNum[5][map5FloodCol].length - 1;
+                        r <
+                        tileM.mapTileNum[5]
+                        [map5FloodCol].length - 1;
                         r++
                     ) {
 
-                        tileM.mapTileNum[5][map5FloodCol][r] = 20;
+                        tileM.mapTileNum[5]
+                            [map5FloodCol][r] = 20;
                     }
 
                     map5FloodCol--;
@@ -408,6 +509,7 @@ public class GamePanel extends JPanel implements Runnable {
         // =================================================
 
         if (screenShakeCounter > 0) {
+
             screenShakeCounter--;
         }
 
@@ -415,59 +517,79 @@ public class GamePanel extends JPanel implements Runnable {
         // MAP 5 RETREAT
         // =================================================
 
-        if (tileM.currentMap == 5 &&
-            player.x < 0) {
+        if (
+            tileM.currentMap == 5 &&
+            player.x < 0
+        ) {
 
             resetMap5Progress();
 
             tileM.currentMap = 3;
 
             player.x =
-                tileSize * (maxScreenCol - 2);
+                tileSize *
+                (maxScreenCol - 2);
         }
 
         // =================================================
         // MAP 3 / MAP 4
         // =================================================
 
-        if (tileM.currentMap == 3 &&
-            player.x < 0) {
+        if (
+            tileM.currentMap == 3 &&
+            player.x < 0
+        ) {
 
             tileM.currentMap = 4;
 
             player.x =
-                screenWidth - (tileSize * 2);
+                screenWidth -
+                (tileSize * 2);
 
             player.y =
                 tileSize * 9;
         }
 
-        else if (tileM.currentMap == 4 &&
-                 player.x >= screenWidth - tileSize) {
+        else if (
+            tileM.currentMap == 4 &&
+            player.x >=
+            screenWidth - tileSize
+        ) {
 
             tileM.currentMap = 3;
 
-            player.x = tileSize * 2;
-            player.y = tileSize * 9;
+            player.x =
+                tileSize * 2;
+
+            player.y =
+                tileSize * 9;
         }
 
-        else if (tileM.currentMap == 3 &&
-                 player.y <= 0) {
+        else if (
+            tileM.currentMap == 3 &&
+            player.y <= 0
+        ) {
 
-            int col = player.x / tileSize;
+            int col =
+                player.x / tileSize;
 
-            if (col >= 7 && col <= 8) {
+            if (
+                col >= 7 &&
+                col <= 8
+            ) {
 
                 if (earthquakePuzzleSolved) {
 
                     tileM.currentMap = 6;
 
                     player.y =
-                        tileSize * (maxScreenRow - 2);
+                        tileSize *
+                        (maxScreenRow - 2);
 
                 } else {
 
-                    player.y = tileSize;
+                    player.y =
+                        tileSize;
 
                     String[] lockedMsg = {
 
@@ -484,7 +606,8 @@ public class GamePanel extends JPanel implements Runnable {
 
             } else {
 
-                player.y = tileSize;
+                player.y =
+                    tileSize;
             }
         }
 
@@ -492,33 +615,49 @@ public class GamePanel extends JPanel implements Runnable {
         // MAP 6 RETURN
         // =================================================
 
-        else if (tileM.currentMap == 6 &&
-                 player.y >= screenHeight) {
+        else if (
+            tileM.currentMap == 6 &&
+            player.y >= screenHeight
+        ) {
 
             tileM.currentMap = 3;
 
-            player.y = tileSize;
+            player.y =
+                tileSize;
         }
 
         // =================================================
         // MAP 7
         // =================================================
 
-        else if (tileM.currentMap == 7) {
+        else if (
+            tileM.currentMap == 7
+        ) {
 
-            dyingNpc.x = tileSize * 8;
-            dyingNpc.y = tileSize * 6;
+            dyingNpc.x =
+                tileSize * 8;
+
+            dyingNpc.y =
+                tileSize * 6;
 
             int dx =
-                Math.abs(player.x - dyingNpc.x);
+                Math.abs(
+                    player.x -
+                    dyingNpc.x
+                );
 
             int dy =
-                Math.abs(player.y - dyingNpc.y);
+                Math.abs(
+                    player.y -
+                    dyingNpc.y
+                );
 
             // Talk to dying traveler
-            if (dx < tileSize * 1.5 &&
+            if (
+                dx < tileSize * 1.5 &&
                 dy < tileSize * 1.5 &&
-                keyH.enterPressed) {
+                keyH.enterPressed
+            ) {
 
                 keyH.enterPressed = false;
 
@@ -531,19 +670,33 @@ public class GamePanel extends JPanel implements Runnable {
             // After dialogue, open Map 7 right exit
             if (dyingNpc.dialogueFinished) {
 
-                for (int r = 4; r <= 6; r++) {
+                for (
+                    int r = 4;
+                    r <= 6;
+                    r++
+                ) {
 
                     tileM.mapTileNum[7]
                         [maxScreenCol - 1][r] = 0;
                 }
 
                 // Enter Map 8
-                if (player.x >= screenWidth - tileSize) {
+                if (
+                    player.x >=
+                    screenWidth - tileSize
+                ) {
 
                     tileM.currentMap = 8;
 
-                    player.x = tileSize * 2;
-                    player.y = tileSize * 5;
+                    player.x =
+                        tileSize * 2;
+
+                    player.y =
+                        tileSize * 5;
+
+                    // Reset Map 8 Oracle interaction
+                    map8OracleInteracted = false;
+                    map8OracleAppeared = false;
 
                     String[] map8Msg = {
 
@@ -559,63 +712,89 @@ public class GamePanel extends JPanel implements Runnable {
         }
 
         // =================================================
-// MAP 8
-// =================================================
-else if (tileM.currentMap == 8) {
+        // MAP 8
+        // =================================================
 
-    // ---------------------------------------------
-// MAP 8 SMALL ORACLE
-// ---------------------------------------------
-// Small Oracle position
-oracle.x = tileSize * 8;
-oracle.y = tileSize * 5;
+        else if (
+            tileM.currentMap == 8
+        ) {
 
-// Check if player is near the small Oracle
-int dx = Math.abs(player.x - oracle.x);
-int dy = Math.abs(player.y - oracle.y);
+            // ---------------------------------------------
+            // SMALL ORACLE POSITION
+            // ---------------------------------------------
 
-// Press E near the Oracle
-if (dx < tileSize * 1.5 &&
-    dy < tileSize * 1.5 &&
-    keyH.enterPressed &&
-    !map8OracleInteracted) {
+            oracle.x =
+                tileSize * 8;
 
-    keyH.enterPressed = false;
+            oracle.y =
+                tileSize * 5;
 
-    map8OracleInteracted = true;
-    map8OracleAppeared = true;
+            // ---------------------------------------------
+            // INTERACT WITH SMALL ORACLE
+            // ---------------------------------------------
 
-    String[] map8OracleMsg = {
+            if (!map8OracleInteracted) {
 
-        "Oracle: You have finally arrived...",
+                int dx =
+                    Math.abs(
+                        player.x -
+                        oracle.x
+                    );
 
-        "The darkness you see is only the beginning.",
+                int dy =
+                    Math.abs(
+                        player.y -
+                        oracle.y
+                    );
 
-        "A terrible typhoon is approaching.",
+                if (
+                    dx < tileSize * 1.5 &&
+                    dy < tileSize * 1.5 &&
+                    keyH.enterPressed
+                ) {
 
-        "You must prove that you know how to survive it."
-    };
+                    keyH.enterPressed = false;
 
-    ui.startNPCDialogue(
-        "Oracle",
-        map8OracleMsg
-    );
-}
+                    // Small Oracle has been interacted with
+                    map8OracleInteracted = true;
 
-    // ---------------------------------------------
-    // RETURN TO MAP 7
-    // ---------------------------------------------
-    if (player.x <= 0) {
+                    // Big Oracle now appears
+                    map8OracleAppeared = true;
 
-        tileM.currentMap = 7;
+                    String[] map8OracleMsg = {
 
-        player.x =
-            screenWidth - (tileSize * 2);
+                        "Oracle: You have finally arrived...",
 
-        player.y =
-            tileSize * 5;
-    }
-}
+                        "The darkness you see is only the beginning.",
+
+                        "A terrible typhoon is approaching.",
+
+                        "You must prove that you know how to survive it."
+                    };
+
+                    ui.startNPCDialogue(
+                        "Oracle",
+                        map8OracleMsg
+                    );
+                }
+            }
+
+            // ---------------------------------------------
+            // RETURN TO MAP 7
+            // ---------------------------------------------
+
+            if (player.x <= 0) {
+
+                tileM.currentMap = 7;
+
+                player.x =
+                    screenWidth -
+                    (tileSize * 2);
+
+                player.y =
+                    tileSize * 5;
+            }
+        }
 
         // =================================================
         // GAME STATE
@@ -635,9 +814,11 @@ if (dx < tileSize * 1.5 &&
         // PLAY STATE
         // =================================================
 
-        else if (gameState == playState) {
+        else if (
+            gameState == playState
+        ) {
 
-            // THIS IS WHAT ALLOWS PLAYER MOVEMENT
+            // Player movement
             if (!keyH.bookPressed) {
 
                 player.update();
@@ -647,9 +828,11 @@ if (dx < tileSize * 1.5 &&
             // GUIDE BOOK
             // =================================================
 
-            if (possessesGuideBook &&
+            if (
+                possessesGuideBook &&
                 keyH.bookPressed &&
-                !villagePathUnlocked) {
+                !villagePathUnlocked
+            ) {
 
                 openVillagePath();
             }
@@ -658,18 +841,24 @@ if (dx < tileSize * 1.5 &&
             // MAP 0
             // =================================================
 
-            if (tileM.currentMap == 0) {
+            if (
+                tileM.currentMap == 0
+            ) {
 
                 // Go to long road
-                if (villagePathUnlocked &&
-                    player.y <= 0) {
+                if (
+                    villagePathUnlocked &&
+                    player.y <= 0
+                ) {
 
                     tileM.currentMap = 2;
 
-                    player.x = tileSize * 8;
+                    player.x =
+                        tileSize * 8;
 
                     player.y =
-                        screenHeight - (tileSize * 2);
+                        screenHeight -
+                        (tileSize * 2);
 
                     String[] roadMsg = {
 
@@ -683,9 +872,11 @@ if (dx < tileSize * 1.5 &&
                 }
 
                 // Chop trees
-                if (keyH.enterPressed &&
+                if (
+                    keyH.enterPressed &&
                     treesChopped < MAX_TREES_TO_CHOP &&
-                    !hasBeenToDarkPlace) {
+                    !hasBeenToDarkPlace
+                ) {
 
                     keyH.enterPressed = false;
 
@@ -724,18 +915,27 @@ if (dx < tileSize * 1.5 &&
                     int row =
                         checkY / tileSize;
 
-                    if (col >= 0 &&
+                    if (
+                        col >= 0 &&
                         col < maxScreenCol &&
                         row >= 0 &&
-                        row < maxScreenRow) {
+                        row < maxScreenRow
+                    ) {
 
-                        if (tileM.mapTileNum[0][col][row] == 1) {
+                        if (
+                            tileM.mapTileNum[0]
+                                [col][row] == 1
+                        ) {
 
-                            tileM.mapTileNum[0][col][row] = 0;
+                            tileM.mapTileNum[0]
+                                [col][row] = 0;
 
                             treesChopped++;
 
-                            if (treesChopped < MAX_TREES_TO_CHOP) {
+                            if (
+                                treesChopped <
+                                MAX_TREES_TO_CHOP
+                            ) {
 
                                 String[] chopMsg = {
 
@@ -756,9 +956,12 @@ if (dx < tileSize * 1.5 &&
 
                                 oracleAppeared = true;
 
-                                oracle.x = player.x;
+                                oracle.x =
+                                    player.x;
+
                                 oracle.y =
-                                    player.y - tileSize;
+                                    player.y -
+                                    tileSize;
 
                                 String[] frightenedMsg = {
 
@@ -770,7 +973,8 @@ if (dx < tileSize * 1.5 &&
 
                                     "A strange man (Oracle) suddenly appears right behind your back, glaring at you angrily!",
 
-                                    ui.playerName + " is terrified!",
+                                    ui.playerName +
+                                    " is terrified!",
 
                                     "The Oracle casts a spell and teleports you both away!"
                                 };
@@ -785,19 +989,27 @@ if (dx < tileSize * 1.5 &&
                 }
 
                 // Teleport to Dark Place
-                if (oracleAppeared &&
+                if (
+                    oracleAppeared &&
                     !hasBeenToDarkPlace &&
-                    gameState != dialogueState) {
+                    gameState != dialogueState
+                ) {
 
                     hasBeenToDarkPlace = true;
 
                     tileM.currentMap = 1;
 
-                    player.x = tileSize * 8;
-                    player.y = tileSize * 8;
+                    player.x =
+                        tileSize * 8;
 
-                    oracle.x = tileSize * 8;
-                    oracle.y = tileSize * 4;
+                    player.y =
+                        tileSize * 8;
+
+                    oracle.x =
+                        tileSize * 8;
+
+                    oracle.y =
+                        tileSize * 4;
 
                     String[] darkPlaceMsg = {
 
@@ -817,19 +1029,29 @@ if (dx < tileSize * 1.5 &&
             // MAP 1
             // =================================================
 
-            else if (tileM.currentMap == 1) {
+            else if (
+                tileM.currentMap == 1
+            ) {
 
                 int dx =
-                    Math.abs(player.x - oracle.x);
+                    Math.abs(
+                        player.x -
+                        oracle.x
+                    );
 
                 int dy =
-                    Math.abs(player.y - oracle.y);
+                    Math.abs(
+                        player.y -
+                        oracle.y
+                    );
 
-                if (dx < tileSize * 2 &&
+                if (
+                    dx < tileSize * 2 &&
                     dy < tileSize * 2 &&
                     keyH.enterPressed &&
                     !bookDropped &&
-                    !oracleDisappeared) {
+                    !oracleDisappeared
+                ) {
 
                     keyH.enterPressed = false;
 
@@ -841,16 +1063,22 @@ if (dx < tileSize * 1.5 &&
                     bookDropped = true;
                 }
 
-                if (bookDropped &&
+                if (
+                    bookDropped &&
                     gameState != dialogueState &&
-                    !oracleDisappeared) {
+                    !oracleDisappeared
+                ) {
 
                     oracleDisappeared = true;
 
-                    guideBook.x = tileSize * 8;
-                    guideBook.y = tileSize * 4;
+                    guideBook.x =
+                        tileSize * 8;
 
-                    guideBook.visible = true;
+                    guideBook.y =
+                        tileSize * 4;
+
+                    guideBook.visible =
+                        true;
 
                     String[] dropMsg = {
 
@@ -868,25 +1096,38 @@ if (dx < tileSize * 1.5 &&
                 if (guideBook.visible) {
 
                     int bdx =
-                        Math.abs(player.x - guideBook.x);
+                        Math.abs(
+                            player.x -
+                            guideBook.x
+                        );
 
                     int bdy =
-                        Math.abs(player.y - guideBook.y);
+                        Math.abs(
+                            player.y -
+                            guideBook.y
+                        );
 
-                    if (bdx < tileSize * 1.5 &&
+                    if (
+                        bdx < tileSize * 1.5 &&
                         bdy < tileSize * 1.5 &&
-                        keyH.enterPressed) {
+                        keyH.enterPressed
+                    ) {
 
                         keyH.enterPressed = false;
 
-                        guideBook.visible = false;
+                        guideBook.visible =
+                            false;
 
-                        possessesGuideBook = true;
+                        possessesGuideBook =
+                            true;
 
                         tileM.currentMap = 0;
 
-                        player.x = tileSize * 7;
-                        player.y = tileSize * 5;
+                        player.x =
+                            tileSize * 7;
+
+                        player.y =
+                            tileSize * 5;
 
                         String[] returnMsg = {
 
@@ -911,16 +1152,22 @@ if (dx < tileSize * 1.5 &&
             // MAP 2
             // =================================================
 
-            else if (tileM.currentMap == 2) {
+            else if (
+                tileM.currentMap == 2
+            ) {
 
-                if (player.y <= 0) {
+                if (
+                    player.y <= 0
+                ) {
 
                     tileM.currentMap = 3;
 
-                    player.x = tileSize * 8;
+                    player.x =
+                        tileSize * 8;
 
                     player.y =
-                        screenHeight - (tileSize * 2);
+                        screenHeight -
+                        (tileSize * 2);
 
                     String[] villageMsg = {
 
@@ -932,13 +1179,20 @@ if (dx < tileSize * 1.5 &&
                         villageMsg
                     );
 
-                } else if (player.y >= screenHeight - tileSize) {
+                }
+
+                else if (
+                    player.y >=
+                    screenHeight - tileSize
+                ) {
 
                     tileM.currentMap = 0;
 
-                    player.x = tileSize * 8;
+                    player.x =
+                        tileSize * 8;
 
-                    player.y = tileSize * 2;
+                    player.y =
+                        tileSize * 2;
                 }
             }
 
@@ -946,29 +1200,44 @@ if (dx < tileSize * 1.5 &&
             // MAP 3
             // =================================================
 
-            else if (tileM.currentMap == 3) {
+            else if (
+                tileM.currentMap == 3
+            ) {
 
-               
+                // NO ORACLE DRAWING OR EVENT HERE
 
-                if (player.y >= screenHeight - tileSize) {
+                if (
+                    player.y >=
+                    screenHeight - tileSize
+                ) {
 
                     tileM.currentMap = 2;
 
-                    player.x = tileSize * 8;
-                    player.y = tileSize * 2;
+                    player.x =
+                        tileSize * 8;
+
+                    player.y =
+                        tileSize * 2;
                 }
 
-                if (player.x <= 5) {
+                if (
+                    player.x <= 5
+                ) {
 
                     tileM.currentMap = 4;
 
                     player.x =
-                        screenWidth - (tileSize * 2);
+                        screenWidth -
+                        (tileSize * 2);
 
-                    player.y = tileSize * 9;
+                    player.y =
+                        tileSize * 9;
                 }
 
-                if (player.x >= screenWidth - tileSize) {
+                if (
+                    player.x >=
+                    screenWidth - tileSize
+                ) {
 
                     boolean allGlyphsDone =
                         ui.glyphSolved[2] &&
@@ -980,7 +1249,8 @@ if (dx < tileSize * 1.5 &&
 
                         tileM.currentMap = 5;
 
-                        player.x = tileSize * 2;
+                        player.x =
+                            tileSize * 2;
 
                         openMap5ExitPath();
 
@@ -994,7 +1264,9 @@ if (dx < tileSize * 1.5 &&
                     } else {
 
                         player.x =
-                            screenWidth - tileSize - 10;
+                            screenWidth -
+                            tileSize -
+                            10;
 
                         String[] lockedRightMsg = {
 
@@ -1015,30 +1287,48 @@ if (dx < tileSize * 1.5 &&
             // MAP 4
             // =================================================
 
-            else if (tileM.currentMap == 4) {
+            else if (
+                tileM.currentMap == 4
+            ) {
 
-                if (player.x >= screenWidth - tileSize) {
+                if (
+                    player.x >=
+                    screenWidth - tileSize
+                ) {
 
                     tileM.currentMap = 3;
 
-                    player.x = tileSize * 2;
-                    player.y = tileSize * 9;
+                    player.x =
+                        tileSize * 2;
+
+                    player.y =
+                        tileSize * 9;
                 }
 
-                int glyphX = tileSize * 4;
-                int glyphY = tileSize * 6;
+                int glyphX =
+                    tileSize * 4;
+
+                int glyphY =
+                    tileSize * 6;
 
                 int distance =
-                    Math.abs(player.x - glyphX)
+                    Math.abs(
+                        player.x - glyphX
+                    )
                     +
-                    Math.abs(player.y - glyphY);
+                    Math.abs(
+                        player.y - glyphY
+                    );
 
-                if (distance < tileSize &&
-                    keyH.enterPressed) {
+                if (
+                    distance < tileSize &&
+                    keyH.enterPressed
+                ) {
 
                     keyH.enterPressed = false;
 
-                    gameState = puzzleState;
+                    gameState =
+                        puzzleState;
 
                     ui.resetEarthquakePuzzle();
                 }
@@ -1048,8 +1338,9 @@ if (dx < tileSize * 1.5 &&
             // MAP 6
             // =================================================
 
-            else if (tileM.currentMap == 6) {
-
+            else if (
+                tileM.currentMap == 6
+            ) {
 
                 int playerCol =
                     player.x / tileSize;
@@ -1065,21 +1356,41 @@ if (dx < tileSize * 1.5 &&
                     {13, 9, 5}
                 };
 
-                for (int[] gCoord : glyphCoords) {
+                for (
+                    int[] gCoord :
+                    glyphCoords
+                ) {
 
-                    int gCol = gCoord[0];
-                    int gRow = gCoord[1];
-                    int gNum = gCoord[2];
+                    int gCol =
+                        gCoord[0];
 
-                    if (Math.abs(playerCol - gCol) <= 1 &&
-                        Math.abs(playerRow - gRow) <= 1 &&
-                        keyH.enterPressed) {
+                    int gRow =
+                        gCoord[1];
+
+                    int gNum =
+                        gCoord[2];
+
+                    if (
+                        Math.abs(
+                            playerCol - gCol
+                        ) <= 1 &&
+
+                        Math.abs(
+                            playerRow - gRow
+                        ) <= 1 &&
+
+                        keyH.enterPressed
+                    ) {
 
                         keyH.enterPressed = false;
 
-                        if (!ui.glyphSolved[gNum]) {
+                        if (
+                            !ui.glyphSolved[gNum]
+                        ) {
 
-                            ui.startGlyphChallenge(gNum);
+                            ui.startGlyphChallenge(
+                                gNum
+                            );
                         }
 
                         break;
@@ -1092,7 +1403,9 @@ if (dx < tileSize * 1.5 &&
         // CUTSCENE
         // =====================================================
 
-        else if (gameState == cutsceneState) {
+        else if (
+            gameState == cutsceneState
+        ) {
 
             ui.updateCutscene();
         }
@@ -1101,7 +1414,9 @@ if (dx < tileSize * 1.5 &&
         // DIALOGUE
         // =====================================================
 
-        else if (gameState == dialogueState) {
+        else if (
+            gameState == dialogueState
+        ) {
 
             // Handled via KeyHandler
         }
@@ -1116,7 +1431,8 @@ if (dx < tileSize * 1.5 &&
 
         super.paintComponent(g);
 
-        Graphics2D g2 = (Graphics2D) g;
+        Graphics2D g2 =
+            (Graphics2D) g;
 
         int shakeX = 0;
         int shakeY = 0;
@@ -1125,19 +1441,28 @@ if (dx < tileSize * 1.5 &&
         // SCREEN SHAKE
         // =================================================
 
-        if (screenShakeCounter > 0) {
+        if (
+            screenShakeCounter > 0
+        ) {
 
             int intensity = 6;
 
             shakeX =
-                shakeRandom.nextInt(intensity * 2)
+                shakeRandom.nextInt(
+                    intensity * 2
+                )
                 - intensity;
 
             shakeY =
-                shakeRandom.nextInt(intensity * 2)
+                shakeRandom.nextInt(
+                    intensity * 2
+                )
                 - intensity;
 
-            g2.translate(shakeX, shakeY);
+            g2.translate(
+                shakeX,
+                shakeY
+            );
         }
 
         // =================================================
@@ -1150,7 +1475,9 @@ if (dx < tileSize * 1.5 &&
         // DARK MAP 8
         // =================================================
 
-        if (tileM.currentMap == 8) {
+        if (
+            tileM.currentMap == 8
+        ) {
 
             g2.setColor(
                 Color.BLACK
@@ -1170,8 +1497,10 @@ if (dx < tileSize * 1.5 &&
         // GUIDE BOOK
         // =================================================
 
-        if (tileM.currentMap == 1 &&
-            guideBook.visible) {
+        if (
+            tileM.currentMap == 1 &&
+            guideBook.visible
+        ) {
 
             guideBook.draw(g2);
         }
@@ -1180,37 +1509,64 @@ if (dx < tileSize * 1.5 &&
         // ORACLE
         // =================================================
 
-       if (
-    (tileM.currentMap == 0 &&
-     oracleAppeared &&
-     !hasBeenToDarkPlace)
+        if (
 
-    ||
+            // Map 0 Oracle
+            (
+                tileM.currentMap == 0 &&
+                oracleAppeared &&
+                !hasBeenToDarkPlace
+            )
 
-    (tileM.currentMap == 1)
+            ||
 
-    ||
+            // Map 1 Oracle
+            (
+                tileM.currentMap == 1
+            )
 
-    (tileM.currentMap == 6 &&
-     map6OracleAppeared)
+            ||
 
-    ||
+            // Map 6 Oracle
+            (
+                tileM.currentMap == 6 &&
+                map6OracleAppeared
+            )
 
-    (tileM.currentMap == 8 &&
-     map8OracleAppeared)
-) {
+            ||
 
-    // Map 1 Oracle disappears after dropping the book
-    if (tileM.currentMap != 1 || !oracleDisappeared) {
-        oracle.draw(g2);
-    }
-}
+            // Map 8 SMALL Oracle
+            (
+                tileM.currentMap == 8 &&
+                !map8OracleInteracted
+            )
+
+            ||
+
+            // Map 8 BIG Oracle
+            (
+                tileM.currentMap == 8 &&
+                map8OracleAppeared
+            )
+        ) {
+
+            // Map 1 Oracle disappears after dropping book
+            if (
+                tileM.currentMap != 1 ||
+                !oracleDisappeared
+            ) {
+
+                oracle.draw(g2);
+            }
+        }
 
         // =================================================
         // DYING NPC
         // =================================================
 
-        if (tileM.currentMap == 7) {
+        if (
+            tileM.currentMap == 7
+        ) {
 
             dyingNpc.draw(g2);
         }
@@ -1225,17 +1581,27 @@ if (dx < tileSize * 1.5 &&
         // MAP 8 WIND
         // =================================================
 
-        if (tileM.currentMap == 8) {
+        if (
+            tileM.currentMap == 8
+        ) {
 
             g2.setColor(
-                new Color(255, 255, 255, 130)
+                new Color(
+                    255,
+                    255,
+                    255,
+                    130
+                )
             );
 
-            for (int i = 0;
-                 i < windParticles.length;
-                 i++) {
+            for (
+                int i = 0;
+                i < windParticles.length;
+                i++
+            ) {
 
                 g2.drawLine(
+
                     windParticles[i].x,
                     windParticles[i].y,
 
@@ -1251,7 +1617,9 @@ if (dx < tileSize * 1.5 &&
         // REMOVE SCREEN SHAKE
         // =================================================
 
-        if (screenShakeCounter > 0) {
+        if (
+            screenShakeCounter > 0
+        ) {
 
             g2.translate(
                 -shakeX,
@@ -1278,7 +1646,9 @@ if (dx < tileSize * 1.5 &&
                 )
             );
 
-            g2.setColor(Color.YELLOW);
+            g2.setColor(
+                Color.YELLOW
+            );
 
             g2.drawString(
                 "Press [B] to open Disaster Guide Book",
@@ -1302,7 +1672,9 @@ if (dx < tileSize * 1.5 &&
                 )
             );
 
-            g2.setColor(Color.GREEN);
+            g2.setColor(
+                Color.GREEN
+            );
 
             g2.drawString(
                 "Objective: A pathway to your house appeared",
@@ -1324,7 +1696,9 @@ if (dx < tileSize * 1.5 &&
                 )
             );
 
-            g2.setColor(Color.GREEN);
+            g2.setColor(
+                Color.GREEN
+            );
 
             g2.drawString(
                 "Objective: Follow the Long Road North to your house",
@@ -1346,7 +1720,9 @@ if (dx < tileSize * 1.5 &&
                 )
             );
 
-            g2.setColor(Color.CYAN);
+            g2.setColor(
+                Color.CYAN
+            );
 
             g2.drawString(
                 "Location: Home",
@@ -1368,7 +1744,9 @@ if (dx < tileSize * 1.5 &&
                 )
             );
 
-            g2.setColor(Color.CYAN);
+            g2.setColor(
+                Color.CYAN
+            );
 
             g2.drawString(
                 "Objective: Stand near corner glyphs (2, 3, 4, 5) and press [ENTER]",
@@ -1390,7 +1768,9 @@ if (dx < tileSize * 1.5 &&
                 )
             );
 
-            g2.setColor(Color.ORANGE);
+            g2.setColor(
+                Color.ORANGE
+            );
 
             g2.drawString(
                 "Objective: Inspect the Glyph and press [ENTER]",
@@ -1398,7 +1778,9 @@ if (dx < tileSize * 1.5 &&
                 30
             );
 
-            g2.setColor(Color.ORANGE);
+            g2.setColor(
+                Color.ORANGE
+            );
 
             g2.fillRect(
                 tileSize * 4,
@@ -1407,7 +1789,9 @@ if (dx < tileSize * 1.5 &&
                 tileSize
             );
 
-            g2.setColor(Color.WHITE);
+            g2.setColor(
+                Color.WHITE
+            );
 
             g2.drawString(
                 "GLYPH",
@@ -1430,7 +1814,9 @@ if (dx < tileSize * 1.5 &&
                 )
             );
 
-            g2.setColor(Color.WHITE);
+            g2.setColor(
+                Color.WHITE
+            );
 
             g2.drawString(
                 "Objective: Chop Trees ("
@@ -1453,27 +1839,37 @@ if (dx < tileSize * 1.5 &&
         // UI STATES
         // =================================================
 
-        if (gameState == cutsceneState) {
+        if (
+            gameState == cutsceneState
+        ) {
 
             ui.drawCutscene(g2);
 
         }
 
-        else if (gameState == dialogueState) {
+        else if (
+            gameState == dialogueState
+        ) {
 
             ui.drawNPCDialogue(g2);
 
         }
 
-        else if (gameState == puzzleState) {
+        else if (
+            gameState == puzzleState
+        ) {
 
-            if (tileM.currentMap == 4) {
+            if (
+                tileM.currentMap == 4
+            ) {
 
                 ui.drawEarthquakePuzzle(g2);
 
             }
 
-            else if (tileM.currentMap == 6) {
+            else if (
+                tileM.currentMap == 6
+            ) {
 
                 ui.drawGlyphPuzzle(g2);
             }
