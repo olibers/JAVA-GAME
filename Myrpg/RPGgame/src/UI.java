@@ -58,6 +58,8 @@ public class UI {
     // Feedback message variables for wrong answers
     public String feedbackMessage = "";
     public int feedbackTimer = 0;
+    public int creditTimer = 0;
+    public boolean gameCompleted = false;
 
     public UI(GamePanel gp) {
 
@@ -128,17 +130,24 @@ public class UI {
 
     public void advanceNPCDialogue() {
         dialogueIndex++;
-        
+
         if (npcDialogueList != null && dialogueIndex < npcDialogueList.length) {
             currentDialogue = npcDialogueList[dialogueIndex];
             charIndex = 0;
             counter = 0;
         } else {
             dialogueIndex = 0;
-            
+
             // Check if dying traveler conversation just finished
             if (currentSpeaker.equals("Dying Traveler")) {
                 gp.dyingNpc.dialogueFinished = true;
+            }
+
+            // --- CHECK IF PLAYER JUST BEAT THE GAME ---
+            if (gameCompleted) {
+                gp.gameState = gp.creditsState;
+                creditTimer = 0; 
+                return; 
             }
 
             if (isFailureSequenceActive) {
@@ -155,7 +164,7 @@ public class UI {
                     gp.gameState = gp.playState;
                 }
             }
-        }   
+        }
     }
 
     private boolean isFailureSequenceActive = false;
@@ -800,13 +809,20 @@ public class UI {
             oracleCurrentQuestion++;
             oracleCursor = 0; 
             
+            // Check if all 8 questions are finished
             if (oracleCurrentQuestion >= oracleQuestions.length) {
-                gp.gameState = gp.playState;
-                String[] winMsg = {
-                    "Oracle: You have proven your readiness.", 
-                    "The storm subsides... The path forward is clear!"
+                // Set the flag to true so the game knows you won
+                gameCompleted = true; 
+                
+                // Open the dialogue box for the cinematic ending
+                gp.gameState = gp.dialogueState;
+                String[] dramaticWinMsg = {
+                    "Oracle: You have proven your readiness...",
+                    "Oracle: You have escaped this challenge... for now.",
+                    "Oracle: The storm clouds break, parting the heavens above.",
+                    "Oracle: But remember... the forest never forgets."
                 };
-                startNPCDialogue("System", winMsg);
+                startNPCDialogue("Oracle", dramaticWinMsg);
             }
         } else {
             isFailingOracle = true;
@@ -814,29 +830,103 @@ public class UI {
         }
     }
 
+    // Keep track of which question failed so we know where to teleport after the shake
+    private int failedAtQuestion = 0;
+
     public void handleOracleFailSequence() {
         shakeFailTimer++; 
         
-        if (shakeFailTimer == 1) gp.triggerScreenShake(30); 
+        // When the shake first starts (at tick 1), save the current question index
+        if (shakeFailTimer == 1) {
+            failedAtQuestion = oracleCurrentQuestion;
+            gp.triggerScreenShake(30);
+        } 
         else if (shakeFailTimer == 60) gp.triggerScreenShake(70); 
         else if (shakeFailTimer == 120) gp.triggerScreenShake(150); 
         else if (shakeFailTimer == 180) { 
             
             isFailingOracle = false;
             oracleCursor = 0; 
-            
             oracleCurrentQuestion = 0; 
             
-            gp.tileM.currentMap = 7; 
-            gp.player.x = gp.tileSize * 5; 
-            gp.player.y = gp.tileSize * 5; 
-            gp.gameState = gp.playState;
+            String validSpeaker = (playerName != null && !playerName.trim().isEmpty()) ? playerName.trim() : "Lumberjack";
+            String[] failMsg;
             
-            String[] failMsg = {
-                "The typhoon winds were too strong!", 
-                "Your lack of preparation blew you back to Map 7..."
-            };
-            startNPCDialogue((playerName != null && !playerName.trim().isEmpty()) ? playerName.trim() : "Lumberjack", failMsg);
+            // Check if the failure happened on the 8th question (index 7)
+            if (failedAtQuestion == 7) {
+                // Send back to Map 3 with the custom deforestation dialogue
+                gp.tileM.currentMap = 3; 
+                gp.player.x = gp.tileSize * 8; 
+                gp.player.y = gp.tileSize * 3; 
+                gp.gameState = gp.playState;
+                
+                failMsg = new String[] {
+                    "Oracle: Then why did you cut those trees?",
+                    "Oracle: Ha! Try again!",
+                    "The typhoon winds blew you back to Map 3..."
+                };
+            } else {
+                // Send back to Map 7 (your existing earthquake failure sequence)
+                gp.tileM.currentMap = 7; 
+                gp.player.x = gp.tileSize * 5; 
+                gp.player.y = gp.tileSize * 5; 
+                gp.gameState = gp.playState;
+                
+                failMsg = new String[] {
+                    "The typhoon winds were too strong!", 
+                    "Your lack of preparation blew you back to Map 7..."
+                };
+            }
+            
+            startNPCDialogue(validSpeaker, failMsg);
+        }
+    }
+    public void drawCredits(Graphics2D g2) {
+        creditTimer++;
+
+        // Black screen background for dramatic effect
+        g2.setColor(Color.BLACK);
+        g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+
+        // Calculate scrolling Y position
+        int startY = gp.screenHeight - (creditTimer / 2);
+
+        // Helper FontMetrics for centering text horizontally
+        FontMetrics fm;
+
+        // 1. Title
+        g2.setColor(Color.WHITE);
+        g2.setFont(new Font("GothicByte", Font.BOLD, 30));
+        String title = "DISASTER PREPAREDNESS: THE ODYSSEY";
+        fm = g2.getFontMetrics();
+        int titleX = (gp.screenWidth - fm.stringWidth(title)) / 2;
+        g2.drawString(title, titleX, startY);
+
+        // 2. Credits Body Text
+        g2.setColor(Color.WHITE);
+        g2.setFont(new Font("GothicByte", Font.PLAIN, 18));
+        fm = g2.getFontMetrics();
+
+        String line1 = "Created by: Lead Developer & Hero";
+        String line2 = "Special Thanks to: The Oracle of the Storm";
+        String line3 = "The Forest: Consumed for Timber";
+
+        g2.drawString(line1, (gp.screenWidth - fm.stringWidth(line1)) / 2, startY + 100);
+        g2.drawString(line2, (gp.screenWidth - fm.stringWidth(line2)) / 2, startY + 160);
+        g2.drawString(line3, (gp.screenWidth - fm.stringWidth(line3)) / 2, startY + 220);
+
+        // 3. Dramatic Twist Line
+        g2.setColor(Color.WHITE);
+        g2.setFont(new Font("GothicByte", Font.ITALIC, 20));
+        fm = g2.getFontMetrics();
+        String twist = "...Or was it all just a dream?";
+        g2.drawString(twist, (gp.screenWidth - fm.stringWidth(twist)) / 2, startY + 320);
+
+        
+        
+        // Loop credits if they scroll all the way off the top
+        if (startY < -400) {
+            creditTimer = -gp.screenHeight * 2; 
         }
     }
 }

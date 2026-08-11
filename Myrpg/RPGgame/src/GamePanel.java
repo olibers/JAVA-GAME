@@ -110,6 +110,8 @@ public class GamePanel extends JPanel implements Runnable {
     public boolean barrier1Cleared = false;
     public boolean barrier2Cleared = false;
     public boolean barrier3Cleared = false;
+    public boolean barrier4Cleared = false;
+    public boolean barrier5Cleared = false;
 
     public boolean waitingForAnswer = false;
     public int activeQuestion = 0;
@@ -175,6 +177,7 @@ public class GamePanel extends JPanel implements Runnable {
     public final int cutsceneState = 2;
     public final int dialogueState = 3;
     public final int puzzleState = 4;
+    public final int creditsState = 5; // (Use whatever number comes next in your sequence)
 
     // =====================================================
     // CONSTRUCTOR
@@ -1860,7 +1863,7 @@ public class GamePanel extends JPanel implements Runnable {
             
             ui.drawOracleQuestion(g2);
         }
-        
+
         if (
             gameState == cutsceneState
         ) {
@@ -1896,6 +1899,13 @@ public class GamePanel extends JPanel implements Runnable {
                 ui.drawGlyphPuzzle(g2);
             }
         }
+            else if (
+                gameState == creditsState
+            ) {
+                
+                ui.drawCredits(g2);
+            
+            }
 
         // =================================================
         // GUIDE BOOK UI

@@ -24,6 +24,10 @@ public class Player extends Entity {
     public int spriteCounter = 0;
     public int spriteNum = 1;
 
+    
+    
+    
+    
     public Player(GamePanel gp, KeyHandler keyH) {
         super(gp);
         this.gp = gp;
@@ -270,27 +274,41 @@ else if (gp.tileM.currentMap == 8) {
                 int playerCol = x / gp.tileSize;
                 
                 // Wave 1 Barrier (Column 15 - triggers at Col 14)
-                if (playerCol == 14 && !gp.barrier1Cleared && !gp.waitingForAnswer) {
+                if (playerCol == 10 && !gp.barrier1Cleared && !gp.waitingForAnswer) {
                     gp.gameState = gp.dialogueState;
                     gp.activeQuestion = 1;
                     gp.waitingForAnswer = true;
-                    gp.ui.currentDialogue = "Incoming Flood Wave 1!\nWhat should you do during a flash flood?\n[Press 1] Stay in low areas\n[Press 2] Move to higher ground";
+                    gp.ui.currentDialogue = "1.What should you do during a flash flood?\n[Press 1] Stay in low areas\n[Press 2] Move to higher ground";
                 }
                 
                 // Wave 2 Barrier (Column 25 - triggers at Col 24)
-                else if (playerCol == 24 && !gp.barrier2Cleared && !gp.waitingForAnswer) {
+                else if (playerCol == 15 && !gp.barrier2Cleared && !gp.waitingForAnswer) {
                     gp.gameState = gp.dialogueState;
                     gp.activeQuestion = 2;
                     gp.waitingForAnswer = true;
-                    gp.ui.currentDialogue = "Incoming Flood Wave 2!\nShould you walk through moving flood water?\n[Press 1] Yes, if it's shallow\n[Press 2] No, it can sweep you away";
+                    gp.ui.currentDialogue = "2.Should you walk through moving flood water?\n[Press 1] Yes, if it's shallow\n[Press 2] No, it can sweep you away";
                 }
                 
                 // Wave 3 Barrier (Column 35 - triggers at Col 34)
-                else if (playerCol == 34 && !gp.barrier3Cleared && !gp.waitingForAnswer) {
+                else if (playerCol == 25 && !gp.barrier3Cleared && !gp.waitingForAnswer) {
                     gp.gameState = gp.dialogueState;
                     gp.activeQuestion = 3;
                     gp.waitingForAnswer = true;
-                    gp.ui.currentDialogue = "Incoming Flood Wave 3!\nWhat is the safest utility to turn off?\n[Press 1] Main power breaker\n[Press 2] Leave everything on";
+                    gp.ui.currentDialogue = "3.What is the safest utility to turn off?\n [Press 1] Main power breaker\n[Press 2] Leave everything on";
+                }
+                else if (playerCol == 35 && !gp.barrier4Cleared && !gp.waitingForAnswer) {
+                    gp.gameState = gp.dialogueState;
+                    gp.activeQuestion = 4;
+                    gp.waitingForAnswer = true;
+                    gp.ui.currentDialogue = "4.What should be inside an emergency kit?\n[Press 1] Flashlight, water, and food\n[Press 2] Video games and toys";
+                }
+                
+                // Wave 5 Barrier (Column 45 - triggers at Col 54)
+                else if (playerCol == 40 && !gp.barrier5Cleared && !gp.waitingForAnswer) {
+                    gp.gameState = gp.dialogueState;
+                    gp.activeQuestion = 5;
+                    gp.waitingForAnswer = true;
+                    gp.ui.currentDialogue = "5.What is an official sign of a rising flood threat?\n[Press 1] Clear sunny skies\n[Press 2] Emergency broadcast warnings";
                 }
             }
             // -----------------------------
