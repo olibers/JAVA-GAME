@@ -196,14 +196,34 @@ public class Player extends Entity {
     }
 
     public void update() {
-        // Adjust speed dynamically depending on the current map
-        if (gp.tileM.currentMap == 5) {
+        // Default speed
+speed = defaultSpeed;
+
+// Map 5: slow down only while standing on water
+if (gp.tileM.currentMap == 5) {
+
+    int playerCol = x / gp.tileSize;
+    int playerRow = y / gp.tileSize;
+
+    // Make sure we're inside the map
+    if (playerCol >= 0 &&
+        playerCol < gp.tileM.mapTileNum[5].length &&
+        playerRow >= 0 &&
+        playerRow < gp.tileM.mapTileNum[5][playerCol].length) {
+
+        int tile = gp.tileM.mapTileNum[5][playerCol][playerRow];
+
+        // 20 = your water tile
+        if (tile == 20) {
             speed = 2;
-        } else if (gp.tileM.currentMap == 8) {
-            speed = defaultSpeed / 2; // Cuts speed in half due to heavy winds in Map 8
-        } else {
-            speed = defaultSpeed;
         }
+    }
+}
+
+// Map 8: heavy wind
+else if (gp.tileM.currentMap == 8) {
+    speed = defaultSpeed / 2;
+}
 
         if (keyH.upPressed || keyH.downPressed || keyH.leftPressed || keyH.rightPressed) {
             
