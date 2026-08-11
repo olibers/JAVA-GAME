@@ -1442,6 +1442,8 @@ public class GamePanel extends JPanel implements Runnable {
     @Override
     public void paintComponent(Graphics g) {
 
+        
+
         super.paintComponent(g);
 
         Graphics2D g2 =
@@ -1852,6 +1854,13 @@ public class GamePanel extends JPanel implements Runnable {
         // UI STATES
         // =================================================
 
+        if (gameState == puzzleState 
+            && tileM.currentMap == 8
+            ) {
+            
+            ui.drawOracleQuestion(g2);
+        }
+        
         if (
             gameState == cutsceneState
         ) {

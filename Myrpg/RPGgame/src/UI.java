@@ -145,9 +145,17 @@ public class UI {
                 isFailureSequenceActive = false;
                 executeFailTeleport();
             } else {
-                gp.gameState = gp.playState;
+                // If we were talking to the Oracle on Map 8, open the quiz instead of returning to playState
+                if (gp.tileM.currentMap == 8 && "Oracle".equals(currentSpeaker)) {
+                    gp.gameState = gp.puzzleState;
+                    oracleCursor = 0;
+                    oracleCurrentQuestion = 0;
+                    isFailingOracle = false;
+                } else {
+                    gp.gameState = gp.playState;
+                }
             }
-        }
+        }   
     }
 
     private boolean isFailureSequenceActive = false;
@@ -578,8 +586,12 @@ public class UI {
             int maxChoiceLimit = 3; 
             
             boolean isGlyphMode = (gp.tileM.currentMap == 6 && currentGlyphNumber >= 2 && currentGlyphNumber <= 5 && !glyphSolved[currentGlyphNumber]);
+            boolean isOracleMode = (gp.tileM.currentMap == 8); // Added Oracle check
 
-            if (isGlyphMode) {
+            if (isOracleMode) {
+                maxChoiceLimit = oracleOptions[oracleCurrentQuestion].length - 1;
+            }
+            else if (isGlyphMode) {
                 if (currentGlyphNumber == 2 && (glyphCurrentQuestion >= 0 && glyphCurrentQuestion <= 3)) maxChoiceLimit = 1;
                 else if (currentGlyphNumber == 3 && (glyphCurrentQuestion >= 0 && glyphCurrentQuestion <= 4)) maxChoiceLimit = 1;
                 else if (currentGlyphNumber == 4 && (glyphCurrentQuestion == 0 || glyphCurrentQuestion == 1)) maxChoiceLimit = 1;
@@ -590,7 +602,11 @@ public class UI {
             }
 
             if (keyCode == java.awt.event.KeyEvent.VK_W || keyCode == java.awt.event.KeyEvent.VK_UP) {
-                if (isGlyphMode) {
+                if (isOracleMode) {
+                    oracleCursor--;
+                    if (oracleCursor < 0) oracleCursor = maxChoiceLimit;
+                }
+                else if (isGlyphMode) {
                     glyphCursor--;
                     if (glyphCursor < 0) glyphCursor = 0;
                 } else {
@@ -599,7 +615,11 @@ public class UI {
                 }
             } 
             else if (keyCode == java.awt.event.KeyEvent.VK_S || keyCode == java.awt.event.KeyEvent.VK_DOWN) {
-                if (isGlyphMode) {
+                if (isOracleMode) {
+                    oracleCursor++;
+                    if (oracleCursor > maxChoiceLimit) oracleCursor = 0;
+                }
+                else if (isGlyphMode) {
                     glyphCursor++;
                     if (glyphCursor > maxChoiceLimit) glyphCursor = maxChoiceLimit;
                 } else {
@@ -608,7 +628,10 @@ public class UI {
                 }
             }
             else if (keyCode == java.awt.event.KeyEvent.VK_ENTER) {
-                if (isGlyphMode) {
+                if (isOracleMode) {
+                    handleOracleInput(oracleCursor);
+                }
+                else if (isGlyphMode) {
                     if (glyphSolved[currentGlyphNumber]) {
                         gp.gameState = gp.playState;
                         return;
@@ -737,5 +760,83 @@ public class UI {
 
     public void drawCutscene(Graphics2D g2) {}
     public void updateCutscene() {}
-    
+
+    // --- Oracle Map 8 Methods ---
+    public void drawOracleQuestion(Graphics2D g2) {
+        if (isFailingOracle) {
+            handleOracleFailSequence();
+            return;
+        }
+
+        g2.setColor(new Color(0, 0, 0, 200));
+        g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+
+        g2.setColor(Color.WHITE);
+        g2.setFont(new Font("Arial", Font.BOLD, 18)); 
+        
+        String question = "Oracle: " + oracleQuestions[oracleCurrentQuestion];
+        int x = gp.tileSize / 2;
+        int y = gp.tileSize * 2;
+        g2.drawString(question, x, y);
+
+        g2.setFont(new Font("Arial", Font.PLAIN, 18));
+        for(int i = 0; i < oracleOptions[oracleCurrentQuestion].length; i++) {
+            if (oracleCursor == i) {
+                g2.setColor(Color.YELLOW);
+                g2.drawString("> " + oracleOptions[oracleCurrentQuestion][i], x + 20, y + gp.tileSize * (2 + i));
+            } else {
+                g2.setColor(Color.WHITE);
+                g2.drawString("  " + oracleOptions[oracleCurrentQuestion][i], x + 20, y + gp.tileSize * (2 + i));
+            }
+        }
+        
+        g2.setFont(new Font("Arial", Font.ITALIC, 16));
+        g2.setColor(Color.LIGHT_GRAY);
+        g2.drawString("[W / S] to move, [ENTER] to confirm", x, y + gp.tileSize * 7);
+    }
+
+    public void handleOracleInput(int choice) {
+        if (choice == oracleCorrectAnswers[oracleCurrentQuestion]) {
+            oracleCurrentQuestion++;
+            oracleCursor = 0; 
+            
+            if (oracleCurrentQuestion >= oracleQuestions.length) {
+                gp.gameState = gp.playState;
+                String[] winMsg = {
+                    "Oracle: You have proven your readiness.", 
+                    "The storm subsides... The path forward is clear!"
+                };
+                startNPCDialogue("System", winMsg);
+            }
+        } else {
+            isFailingOracle = true;
+            shakeFailTimer = 0; 
+        }
+    }
+
+    public void handleOracleFailSequence() {
+        shakeFailTimer++; 
+        
+        if (shakeFailTimer == 1) gp.triggerScreenShake(30); 
+        else if (shakeFailTimer == 60) gp.triggerScreenShake(70); 
+        else if (shakeFailTimer == 120) gp.triggerScreenShake(150); 
+        else if (shakeFailTimer == 180) { 
+            
+            isFailingOracle = false;
+            oracleCursor = 0; 
+            
+            oracleCurrentQuestion = 0; 
+            
+            gp.tileM.currentMap = 7; 
+            gp.player.x = gp.tileSize * 5; 
+            gp.player.y = gp.tileSize * 5; 
+            gp.gameState = gp.playState;
+            
+            String[] failMsg = {
+                "The typhoon winds were too strong!", 
+                "Your lack of preparation blew you back to Map 7..."
+            };
+            startNPCDialogue((playerName != null && !playerName.trim().isEmpty()) ? playerName.trim() : "Lumberjack", failMsg);
+        }
+    }
 }
