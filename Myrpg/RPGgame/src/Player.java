@@ -20,9 +20,20 @@ public class Player extends Entity {
     public boolean collisionOn = false;
 
     // Sprite variables
-    public BufferedImage up1, up2, down1, down2, left1, left2, right1, right2;
-    public int spriteCounter = 0;
-    public int spriteNum = 1;
+    // Normal character sprites
+public BufferedImage up1, up2, down1, down2, left1, left2, right1, right2;
+
+// NEW: Character sprites after getting the book
+public BufferedImage bookUp1, bookUp2;
+public BufferedImage bookDown1, bookDown2;
+public BufferedImage bookLeft1, bookLeft2;
+public BufferedImage bookRight1, bookRight2;
+
+// Becomes true after getting the book
+public boolean hasBook = false;
+
+public int spriteCounter = 0;
+public int spriteNum = 1;
 
     
     
@@ -163,18 +174,40 @@ public class Player extends Entity {
     }
  
     public void getPlayerImage() {
-        down1 = loadPlayerSprite("/assets/player/player_down.png");
-        down2 = down1; 
-        
-        up1 = loadPlayerSprite("/assets/player/player_up.png");
-        up2 = up1;
-        
-        left1 = loadPlayerSprite("/assets/player/player_left.png");
-        left2 = left1;
-        
-        right1 = loadPlayerSprite("/assets/player/player_right.png");
-        right2 = right1;
-    }
+
+    // ==========================================
+    // NORMAL CHARACTER
+    // ==========================================
+
+    down1 = loadPlayerSprite("/assets/player/player_down.png");
+    down2 = down1;
+
+    up1 = loadPlayerSprite("/assets/player/player_up.png");
+    up2 = up1;
+
+    left1 = loadPlayerSprite("/assets/player/player_left.png");
+    left2 = left1;
+
+    right1 = loadPlayerSprite("/assets/player/player_right.png");
+    right2 = right1;
+
+
+    // ==========================================
+    // CHARACTER AFTER GETTING THE BOOK
+    // ==========================================
+
+    bookDown1 = loadPlayerSprite("/assets/player/down_naxe.png");
+    bookDown2 = bookDown1;
+
+    bookUp1 = loadPlayerSprite("/assets/player/up_naxe.png");
+    bookUp2 = bookUp1;
+
+    bookLeft1 = loadPlayerSprite("/assets/player/left_naxe.png");
+    bookLeft2 = bookLeft1;
+
+    bookRight1 = loadPlayerSprite("/assets/player/right.png");
+    bookRight2 = bookRight1;
+}
 
     private BufferedImage loadPlayerSprite(String path) {
         try {
