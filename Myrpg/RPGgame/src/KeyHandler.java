@@ -42,9 +42,24 @@ public class KeyHandler implements KeyListener {
                 enterPressed = true;
             }
             if (code == KeyEvent.VK_B) {
-                // Toggle guidebook on/off
-                bookPressed = !bookPressed;
-            }
+
+    // First B press: show the guide introduction dialogue
+    if (gp.possessesGuideBook && !gp.guideIntroShown) {
+
+        gp.guideIntroShown = true;
+
+        // Do NOT open the book yet
+        bookPressed = false;
+
+        gp.openVillagePath();
+
+    } else {
+
+        // After the introduction has been shown,
+        // B simply opens/closes the book
+        bookPressed = !bookPressed;
+    }
+}
         }
        // DIALOGUE STATE (Handles NPCs and Flood Wave Questions)
 else if (gp.gameState == gp.dialogueState) {
@@ -220,7 +235,7 @@ else if (gp.gameState == gp.dialogueState) {
         
         // Question 5 Answers (Correct is 1)
         else if (gp.activeQuestion == 5) {
-            if (code == KeyEvent.VK_1 || code == KeyEvent.VK_NUMPAD1) {
+            if (code == KeyEvent.VK_2 || code == KeyEvent.VK_NUMPAD2) {
 
                 // Correct answer
                 gp.barrier5Cleared = true;

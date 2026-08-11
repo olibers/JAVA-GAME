@@ -10,6 +10,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     public boolean villageOracleAppeared = false;
     public boolean map6OracleAppeared = false;
+    public boolean guideBookReadyToClose = false;
 
     // MAP 8 ORACLE
     public boolean map8OracleInteracted = false;
@@ -27,6 +28,7 @@ public class GamePanel extends JPanel implements Runnable {
     public boolean possessesGuideBook = false;
     public boolean villagePathUnlocked = false;
     public boolean earthquakePuzzleSolved = false;
+    public boolean guideIntroShown = false;
 
     public boolean map7EntranceSealed = false;
     public boolean map8DialogueShown = false;
@@ -273,29 +275,29 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void openVillagePath() {
 
-        if (!villagePathUnlocked) {
+    if (!villagePathUnlocked) {
 
-            villagePathUnlocked = true;
+        villagePathUnlocked = true;
 
-            tileM.mapTileNum[0][7][0] = 0;
-            tileM.mapTileNum[0][8][0] = 0;
-            tileM.mapTileNum[0][9][0] = 0;
+        tileM.mapTileNum[0][7][0] = 0;
+        tileM.mapTileNum[0][8][0] = 0;
+        tileM.mapTileNum[0][9][0] = 0;
 
-            String[] pathMsg = {
+        String[] pathMsg = {
 
-                "As you finish reading the guide, a heavy rumbling echoes through the forest!",
+            "As you finish reading the guide, a heavy rumbling echoes through the forest!",
 
-                "The trees blocking the northern path have cleared!",
+            "The trees blocking the northern path have cleared!",
 
-                "Follow the long road north to reach your house"
-            };
+            "Follow the long road north to reach your house"
+        };
 
-            ui.startNPCDialogue(
-                "System",
-                pathMsg
-            );
-        }
+        ui.startNPCDialogue(
+            "System",
+            pathMsg
+        );
     }
+}
 
     // =====================================================
     // RESET MAP 5
@@ -1113,43 +1115,41 @@ public class GamePanel extends JPanel implements Runnable {
                         );
 
                     if (
-                        bdx < tileSize * 1.5 &&
-                        bdy < tileSize * 1.5 &&
-                        keyH.enterPressed
-                    ) {
+    bdx < tileSize * 1.5 &&
+    bdy < tileSize * 1.5 &&
+    keyH.enterPressed
+) {
 
-                        keyH.enterPressed = false;
+    keyH.enterPressed = false;
 
-                        guideBook.visible =
-                            false;
+    guideBook.visible = false;
 
-                        possessesGuideBook =
-                            true;
+    possessesGuideBook = true;
 
-                        tileM.currentMap = 0;
+    // Keep the guide book CLOSED
+    keyH.bookPressed = false;
 
-                        player.x =
-                            tileSize * 7;
+    tileM.currentMap = 0;
 
-                        player.y =
-                            tileSize * 5;
+    player.x = tileSize * 7;
+    player.y = tileSize * 5;
 
-                        String[] returnMsg = {
+    String[] returnMsg = {
 
-                            "You picked up the [Disaster Preparedness Guide Book]!",
+        "You picked up the [Disaster Preparedness Guide Book]!",
 
-                            "A blinding flash of light surrounds you...",
+        "A blinding flash of light surrounds you...",
 
-                            "You were teleported back to the forest!",
+        "You were teleported back to the forest!",
 
-                            "Press [B] to open and read your Disaster Preparedness Guide!"
-                        };
+        "Press [B] to open and read your Disaster Preparedness Guide!"
+    };
 
-                        ui.startNPCDialogue(
-                            "System",
-                            returnMsg
-                        );
-                    }
+    ui.startNPCDialogue(
+        "System",
+        returnMsg
+    );
+}
                 }
             }
 

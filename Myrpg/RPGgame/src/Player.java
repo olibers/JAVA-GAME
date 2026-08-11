@@ -269,6 +269,31 @@ else if (gp.tileM.currentMap == 8) {
 
             checkMapTransition();
 
+            checkMapTransition();
+
+        // Keep player inside the visible game window
+        // on maps that do NOT use edge transitions.
+
+        if (gp.tileM.currentMap != 5) {
+
+            if (x < 0) {
+                x = 0;
+            }
+
+            if (y < 0) {
+                y = 0;
+            }
+
+            if (x > gp.maxScreenCol * gp.tileSize - gp.tileSize) {
+                x = gp.maxScreenCol * gp.tileSize - gp.tileSize;
+            }
+
+            if (y > gp.maxScreenRow * gp.tileSize - gp.tileSize) {
+                y = gp.maxScreenRow * gp.tileSize - gp.tileSize;
+            }
+        }
+
+
             // --- FLOOD BARRIER CHECKS ---
             if (gp.tileM.currentMap == 5) {
                 int playerCol = x / gp.tileSize;
