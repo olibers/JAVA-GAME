@@ -12,6 +12,7 @@ public class GamePanel extends JPanel implements Runnable {
     public boolean map6OracleAppeared = false;
     public boolean guideBookReadyToClose = false;
     public boolean map4GlyphSolved = false;
+    public AudioManager audio;
 
     // MAP 8 ORACLE
     public boolean map8OracleInteracted = false;
