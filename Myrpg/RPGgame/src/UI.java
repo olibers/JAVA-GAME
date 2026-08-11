@@ -27,11 +27,44 @@ public class UI {
     // Portrait variables
     public BufferedImage oraclePortrait;
 
+    public int oracleCursor = 0;
+    public boolean isFailingOracle = false;
+    public int shakeFailTimer = 0;
+    public int oracleCurrentQuestion = 0;
+
+    String[] oracleQuestions = {
+        "What should you do when a typhoon warning is issued?",
+        "Which of the following is most important to prepare before a typhoon?",
+        "What should you do with windows and doors before a strong typhoon arrives?",
+        "Which item should be included in an emergency kit?",
+        "Why should you store enough clean drinking water before a typhoon?",
+        "What should you do if your area is ordered to evacuate?",
+        "What should you do with electrical appliances before a severe typhoon?",
+        "Is deforestation one of the main causes of environmental danger?"
+    };
+
+    String[][] oracleOptions = {
+        {"A. Go outside to observe the weather", "B. Stay informed and follow advisories", "C. Ignore warning if there is no rain", "D. Travel to another place immediately"},
+        {"A. Emergency go-bag", "B. New clothes", "C. Video games", "D. Decorations"},
+        {"A. Leave them open", "B. Remove all locks", "C. Secure and reinforce them", "D. Open them to let air inside"},
+        {"A. Flashlight and extra batteries", "B. Gaming console", "C. Television", "D. Hair dryer"},
+        {"A. Water services may be interrupted", "B. Water becomes cheaper", "C. It helps cool the house", "D. It prevents strong winds"},
+        {"A. Wait until typhoon gets stronger", "B. Stay home and ignore the order", "C. Evacuate to the designated safe area", "D. Go to the nearest beach"},
+        {"A. Leave them plugged in", "B. Unplug them if it is safe to do so", "C. Place them near windows", "D. Turn them on continuously"},
+        {"A. Yes", "B. No"}
+    };
+
+    int[] oracleCorrectAnswers = {1, 0, 2, 0, 0, 2, 1, 0};
     // Feedback message variables for wrong answers
     public String feedbackMessage = "";
     public int feedbackTimer = 0;
 
     public UI(GamePanel gp) {
+
+    
+
+    
+
         this.gp = gp;
         
         try {
@@ -704,4 +737,5 @@ public class UI {
 
     public void drawCutscene(Graphics2D g2) {}
     public void updateCutscene() {}
+    
 }

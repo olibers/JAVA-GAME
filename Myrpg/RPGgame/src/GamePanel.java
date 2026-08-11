@@ -14,6 +14,8 @@ public class GamePanel extends JPanel implements Runnable {
     // MAP 8 ORACLE
     public boolean map8OracleInteracted = false;
     public boolean map8OracleAppeared = false;
+    boolean map6IntroTriggered = false;
+    
 
     public int treesChopped = 0;
     public final int MAX_TREES_TO_CHOP = 3;
@@ -1341,6 +1343,17 @@ public class GamePanel extends JPanel implements Runnable {
             else if (
                 tileM.currentMap == 6
             ) {
+
+
+                if (!map6IntroTriggered) {
+                map6IntroTriggered = true;
+                
+                String[] oracleMap6Dialogue = {
+                    "Welcome to the Inner Sanctum...",
+                    "You must face the four corner glyph challenges to proceed!"
+                };
+                ui.startNPCDialogue("Oracle", oracleMap6Dialogue);
+            }
 
                 int playerCol =
                     player.x / tileSize;
