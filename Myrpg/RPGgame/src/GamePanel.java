@@ -11,6 +11,7 @@ public class GamePanel extends JPanel implements Runnable {
     public boolean villageOracleAppeared = false;
     public boolean map6OracleAppeared = false;
     public boolean guideBookReadyToClose = false;
+    public boolean map4GlyphSolved = false;
 
     // MAP 8 ORACLE
     public boolean map8OracleInteracted = false;
@@ -1773,50 +1774,39 @@ public class GamePanel extends JPanel implements Runnable {
             );
         }
 
-        else if (
-            tileM.currentMap == 4 &&
-            gameState == playState
-        ) {
+        else if (tileM.currentMap == 4) {
 
-            g2.setFont(
-                new Font(
-                    "Arial",
-                    Font.BOLD,
-                    16
-                )
-            );
+    if (player.x >= screenWidth - tileSize) {
 
-            g2.setColor(
-                Color.ORANGE
-            );
+        tileM.currentMap = 3;
 
-            g2.drawString(
-                "Objective: Inspect the Glyph and press [ENTER]",
-                20,
-                30
-            );
+        player.x = tileSize * 2;
+        player.y = tileSize * 9;
+    }
 
-            g2.setColor(
-                Color.ORANGE
-            );
+    int glyphX = tileSize * 4;
+    int glyphY = tileSize * 6;
 
-            g2.fillRect(
-                tileSize * 4,
-                tileSize * 6,
-                tileSize,
-                tileSize
-            );
+    int distance =
+        Math.abs(player.x - glyphX)
+        + Math.abs(player.y - glyphY);
 
-            g2.setColor(
-                Color.WHITE
-            );
+    if (
+        distance < tileSize &&
+        keyH.enterPressed
+    ) {
 
-            g2.drawString(
-                "GLYPH",
-                tileSize * 4,
-                tileSize * 6 + 28
-            );
+        keyH.enterPressed = false;
+
+        // Only allow the puzzle to open if it is NOT solved
+        if (!ui.earthquakeSolved) {
+
+            gameState = puzzleState;
+
+            ui.resetEarthquakePuzzle();
         }
+    }
+}
 
         else if (
             tileM.currentMap == 0 &&

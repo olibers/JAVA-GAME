@@ -70,11 +70,48 @@ public class NPC {
     public void update() {}
 
     public void draw(Graphics2D g2) {
-        if (image != null) {
-            g2.drawImage(image, x, y, gp.tileSize, gp.tileSize, null);
-        } else {
-            g2.setColor(Color.YELLOW);
-            g2.fillRect(x, y, gp.tileSize, gp.tileSize);
-        }
+
+    if (image != null) {
+
+        // ==========================================
+        // ORACLE SIZE
+        // ==========================================
+
+        double oracleScale = 2;
+
+        int width =
+            (int)(gp.tileSize * oracleScale);
+
+        int height =
+            (int)(gp.tileSize * oracleScale);
+
+        // Center horizontally
+        int drawX =
+            x - (width - gp.tileSize) / 2;
+
+        // Keep feet on the original tile position
+        int drawY =
+            y - (height - gp.tileSize);
+
+        g2.drawImage(
+            image,
+            drawX,
+            drawY,
+            width,
+            height,
+            null
+        );
+
+    } else {
+
+        g2.setColor(Color.YELLOW);
+
+        g2.fillRect(
+            x,
+            y,
+            gp.tileSize,
+            gp.tileSize
+        );
     }
+}
 }

@@ -14,6 +14,7 @@ public class TileManager {
     public int currentMap = 0;
 
     private BufferedImage fullHouse;
+    private BufferedImage glyphImage;
 
     public TileManager(GamePanel gp) {
         this.gp = gp;
@@ -25,6 +26,13 @@ public class TileManager {
     }
 
     public void getTileImage() {
+
+        glyphImage = loadTexture(
+    "/assets/tiles/glyph.png",
+    "assets/tiles/glyph.png",
+    Color.YELLOW
+);
+        
         tile[20] = new Tile();
         tile[20].image = loadTexture("/assets/tiles/water.png", "assets/tiles/water.png", Color.BLUE);
         tile[20].collision = false;
@@ -33,10 +41,19 @@ public class TileManager {
         tile[0].image = loadTexture("/assets/tiles/grass.png", "assets/tiles/grass.png", Color.GREEN);
         tile[0].collision = false;
 
-        tile[1] = new Tile();
-        tile[1].image = loadTexture("/assets/tiles/tree.png", "assets/tiles/tree.png", Color.DARK_GRAY);
-        tile[1].collision = true;
+        // =====================================================
+// TREE TILE
+// =====================================================
 
+tile[1] = new Tile();
+
+tile[1].image = createTreeTile(
+    "/assets/tiles/tree.png",
+    "assets/tiles/tree.png"
+);
+
+tile[1].collision = true;
+tile[1].collision = true;
         tile[2] = new Tile();
         tile[2].image = new BufferedImage(gp.tileSize, gp.tileSize, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = tile[2].image.createGraphics();
@@ -71,13 +88,17 @@ public class TileManager {
             }
         }
 
-        tile[12] = new Tile();
-        tile[12].image = new BufferedImage(gp.tileSize, gp.tileSize, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D gPath = tile[12].image.createGraphics();
-        gPath.setColor(new Color(180, 130, 80));
-        gPath.fillRect(0, 0, gp.tileSize, gp.tileSize);
-        gPath.dispose();
-        tile[12].collision = false;
+        // =====================================================
+// DIRT PATH TILE
+// =====================================================
+
+tile[12] = new Tile();
+tile[12].image = loadTexture(
+    "/assets/tiles/dirt.png",
+    "assets/tiles/dirt.png",
+    new Color(180, 130, 80)
+);
+tile[12].collision = false;
 
         // Added building door tile for Map 8
         tile[13] = new Tile();
@@ -124,6 +145,195 @@ public class TileManager {
 
         return img;
     }
+
+    private BufferedImage createTreeTile(
+        String resourcePath,
+        String filePath) {
+
+    BufferedImage treeImage = null;
+
+    // ================================================
+    // LOAD TREE IMAGE
+    // ================================================
+
+    try {
+
+        InputStream is =
+            getClass().getResourceAsStream(resourcePath);
+
+        if (is != null) {
+            treeImage = ImageIO.read(is);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    // Try file paths if resource loading failed
+    if (treeImage == null) {
+
+        String[] paths = {
+            filePath,
+            "src/" + filePath,
+            "../" + filePath
+        };
+
+        for (String path : paths) {
+
+            File f = new File(path);
+
+            if (f.exists()) {
+
+                try {
+
+                    treeImage =
+                        ImageIO.read(f);
+
+                    break;
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    // ================================================
+    // FALLBACK
+    // ================================================
+
+    if (treeImage == null) {
+
+        BufferedImage fallback =
+            new BufferedImage(
+                gp.tileSize,
+                gp.tileSize,
+                BufferedImage.TYPE_INT_ARGB
+            );
+
+        Graphics2D g2 =
+            fallback.createGraphics();
+
+        g2.drawImage(
+            tile[0].image,
+            0,
+            0,
+            gp.tileSize,
+            gp.tileSize,
+            null
+        );
+
+        g2.dispose();
+
+        return fallback;
+    }
+
+    // ================================================
+    // CREATE TILE WITH GRASS UNDERNEATH
+    // ================================================
+
+    BufferedImage result =
+        new BufferedImage(
+            gp.tileSize,
+            gp.tileSize,
+            BufferedImage.TYPE_INT_ARGB
+        );
+
+    Graphics2D g2 =
+        result.createGraphics();
+
+    // Draw grass first
+    g2.drawImage(
+        tile[0].image,
+        0,
+        0,
+        gp.tileSize,
+        gp.tileSize,
+        null
+    );
+
+    // ================================================
+    // DRAW TREE WITH BLACK BACKGROUND REMOVED
+    // ================================================
+
+    for (int x = 0; x < treeImage.getWidth(); x++) {
+
+        for (int y = 0; y < treeImage.getHeight(); y++) {
+
+            int rgb =
+                treeImage.getRGB(x, y);
+
+            int alpha =
+                (rgb >> 24) & 0xFF;
+
+            int red =
+                (rgb >> 16) & 0xFF;
+
+            int green =
+                (rgb >> 8) & 0xFF;
+
+            int blue =
+                rgb & 0xFF;
+
+            // Remove black/dark background
+            if (
+                alpha == 0 ||
+                (
+                    red < 60 &&
+                    green < 60 &&
+                    blue < 60
+                )
+            ) {
+
+                continue;
+            }
+
+            // Scale pixel position to tile size
+            int newX =
+                x * gp.tileSize /
+                treeImage.getWidth();
+
+            int newY =
+                y * gp.tileSize /
+                treeImage.getHeight();
+
+            int nextX =
+                (x + 1) * gp.tileSize /
+                treeImage.getWidth();
+
+            int nextY =
+                (y + 1) * gp.tileSize /
+                treeImage.getHeight();
+
+            int width =
+                Math.max(1, nextX - newX);
+
+            int height =
+                Math.max(1, nextY - newY);
+
+            // Preserve original color
+            g2.setColor(
+                new Color(
+                    red,
+                    green,
+                    blue,
+                    alpha
+                )
+            );
+
+            g2.fillRect(
+                newX,
+                newY,
+                width,
+                height
+            );
+        }
+    }
+
+    g2.dispose();
+
+    return result;
+}
 
     public void loadMaps() {
         for (int c = 0; c < gp.maxScreenCol; c++) {
@@ -370,31 +580,124 @@ if (currentMap == 8 && fullHouse != null) {
 }
     }
 
-    private void drawSingleGlyph(Graphics2D g2, int col, int row, int glyphNum, int playerCol, int playerRow) {
-        int x = col * gp.tileSize;
-        int y = row * gp.tileSize;
+    private void drawSingleGlyph(
+    Graphics2D g2,
+    int col,
+    int row,
+    int glyphNum,
+    int playerCol,
+    int playerRow
+) {
 
-        boolean solved = gp.ui.glyphSolved[glyphNum];
+    // ==========================================
+    // GLYPH SIZE
+    // ==========================================
 
-        g2.setColor(solved ? new Color(0, 255, 0, 180) : new Color(255, 215, 0, 220));
-        g2.fillRect(x + 8, y + 8, gp.tileSize - 16, gp.tileSize - 16);
-        g2.setColor(Color.WHITE);
-        g2.drawRect(x + 8, y + 8, gp.tileSize - 16, gp.tileSize - 16);
+    double glyphScale = 1.5;
 
-        g2.setFont(new Font("Arial", Font.BOLD, 12));
-        g2.setColor(Color.BLACK);
-        g2.drawString("G" + glyphNum, x + 14, y + 28);
+    int glyphSize =
+        (int)(gp.tileSize * glyphScale);
 
-        if (Math.abs(playerCol - col) <= 1 && Math.abs(playerRow - row) <= 1) {
-            g2.setColor(Color.YELLOW);
-            String prompt = solved ? "Glyph " + glyphNum + " Cleared" : "Press [E] for Glyph " + glyphNum;
-            g2.drawString(prompt, x - 25, y - 10);
-        }
+    int tileX =
+        col * gp.tileSize;
+
+    int tileY =
+        row * gp.tileSize;
+
+    // Center the larger glyph
+    int x =
+        tileX -
+        (glyphSize - gp.tileSize) / 2;
+
+    int y =
+        tileY -
+        (glyphSize - gp.tileSize) / 2;
+
+    // ==========================================
+    // DRAW GLYPH IMAGE
+    // ==========================================
+
+    if (glyphImage != null) {
+
+        g2.drawImage(
+            glyphImage,
+            x,
+            y,
+            glyphSize,
+            glyphSize,
+            null
+        );
+
     }
+
+    // ==========================================
+    // SOLVED EFFECT
+    // ==========================================
+
+    
+
+    // ==========================================
+    // PLAYER PROMPT
+    // ==========================================
+
+    if (
+        Math.abs(playerCol - col) <= 1 &&
+        Math.abs(playerRow - row) <= 1
+    ) {
+
+        g2.setFont(
+            new Font(
+                "Arial",
+                Font.BOLD,
+                12
+            )
+        );
+
+        g2.setColor(Color.YELLOW);
+
+        
+    }
+}
 
     public void unlockNorthGate() {
         for (int c = 7; c <= 8; c++) {
             mapTileNum[3][c][0] = 12; 
         }
     }
+
+    public void drawMap4Glyph(Graphics2D g2) {
+
+    if (glyphImage == null) {
+        return;
+    }
+
+    double glyphScale = 1.5;
+
+    int glyphSize =
+        (int)(gp.tileSize * glyphScale);
+
+    int tileX =
+        gp.tileSize * 4;
+
+    int tileY =
+        gp.tileSize * 6;
+
+    // Center the larger glyph
+    int x =
+        tileX -
+        (glyphSize - gp.tileSize) / 2;
+
+    int y =
+        tileY -
+        (glyphSize - gp.tileSize) / 2;
+
+    g2.drawImage(
+        glyphImage,
+        x,
+        y,
+        glyphSize,
+        glyphSize,
+        null
+    );
+}
 }

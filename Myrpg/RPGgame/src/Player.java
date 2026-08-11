@@ -346,31 +346,90 @@ else if (gp.tileM.currentMap == 8) {
             }
         }
     }
-
+    public double playerScale = 2;
     public void draw(Graphics2D g2) {
-        BufferedImage image = down1;
 
-        switch (direction) {
-            case "up": image = (spriteNum == 1) ? up1 : up2; break;
-            case "down": image = (spriteNum == 1) ? down1 : down2; break;
-            case "left": image = (spriteNum == 1) ? left1 : left2; break;
-            case "right": image = (spriteNum == 1) ? right1 : right2; break;
-        }
+    BufferedImage image = down1;
 
-        int screenX = x;
+    switch (direction) {
+        case "up":
+            image = (spriteNum == 1) ? up1 : up2;
+            break;
 
-        // If on Map 5, adjust player screen position based on the scrolling camera offset
-        if (gp.tileM.currentMap == 5) {
-            int maxCols = gp.tileM.mapTileNum[5].length;
-            int cameraX = x - (gp.maxScreenCol / 2) * gp.tileSize;
-            
-            int maxCameraX = (maxCols * gp.tileSize) - (gp.maxScreenCol * gp.tileSize);
-            if (cameraX < 0) cameraX = 0;
-            if (cameraX > maxCameraX) cameraX = maxCameraX;
-            
-            screenX = x - cameraX;
-        }
+        case "down":
+            image = (spriteNum == 1) ? down1 : down2;
+            break;
 
-        g2.drawImage(image, screenX, y, gp.tileSize, gp.tileSize, null);
+        case "left":
+            image = (spriteNum == 1) ? left1 : left2;
+            break;
+
+        case "right":
+            image = (spriteNum == 1) ? right1 : right2;
+            break;
     }
+
+    int screenX = x;
+
+    // ==========================================
+    // MAP 5 CAMERA
+    // ==========================================
+
+    if (gp.tileM.currentMap == 5) {
+
+        int maxCols =
+            gp.tileM.mapTileNum[5].length;
+
+        int cameraX =
+            x -
+            (gp.maxScreenCol / 2)
+            * gp.tileSize;
+
+        int maxCameraX =
+            (maxCols * gp.tileSize)
+            -
+            (gp.maxScreenCol * gp.tileSize);
+
+        if (cameraX < 0) {
+            cameraX = 0;
+        }
+
+        if (cameraX > maxCameraX) {
+            cameraX = maxCameraX;
+        }
+
+        screenX =
+            x - cameraX;
+    }
+
+    // ==========================================
+    // PLAYER SIZE
+    // ==========================================
+
+    int playerWidth =
+        (int)(gp.tileSize * playerScale);
+
+    int playerHeight =
+        (int)(gp.tileSize * playerScale);
+
+    // Keep the player's feet near the original
+    // tile position while making the sprite larger.
+
+    int drawX =
+        screenX -
+        (playerWidth - gp.tileSize) / 2;
+
+    int drawY =
+        y -
+        (playerHeight - gp.tileSize);
+
+    g2.drawImage(
+        image,
+        drawX,
+        drawY,
+        playerWidth,
+        playerHeight,
+        null
+    );
+}
 }

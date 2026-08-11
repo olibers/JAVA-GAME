@@ -296,7 +296,7 @@ public class UI {
 
     public void resetEarthquakePuzzle() {
         earthquakeCursor = 0;
-        earthquakeSolved = false;
+        
         currentQuestion = 0;
         puzzleTimer = maxPuzzleTime;
         isFailureSequenceActive = false;
@@ -408,32 +408,55 @@ public class UI {
     }
 
     public void handlePuzzleInput(int choice) {
-        if (earthquakeSolved || currentQuestion >= 5) return;
 
-        boolean correct = false;
-
-        if (currentQuestion == 0 && choice == 0) correct = true;
-        else if (currentQuestion == 1 && choice == 0) correct = true;
-        else if (currentQuestion == 2 && choice == 0) correct = true;
-        else if (currentQuestion == 3 && choice == 0) correct = true;
-        else if (currentQuestion == 4 && choice == 2) correct = true;
-
-        if (correct) {
-            currentQuestion++;
-            earthquakeCursor = 0;
-            feedbackTimer = 0;
-            
-            if (currentQuestion >= 5) {
-                earthquakeSolved = true;
-                gp.earthquakePuzzleSolved = true;
-            } else {
-                puzzleTimer = maxPuzzleTime;
-            }
-        } else {
-            failPuzzlePenalty();
-        }
+    // Don't allow the puzzle to be answered again
+    if (earthquakeSolved || currentQuestion >= 5) {
+        return;
     }
 
+    boolean correct = false;
+
+    if (currentQuestion == 0 && choice == 0) {
+        correct = true;
+    }
+    else if (currentQuestion == 1 && choice == 0) {
+        correct = true;
+    }
+    else if (currentQuestion == 2 && choice == 0) {
+        correct = true;
+    }
+    else if (currentQuestion == 3 && choice == 0) {
+        correct = true;
+    }
+    else if (currentQuestion == 4 && choice == 2) {
+        correct = true;
+    }
+
+    if (correct) {
+
+        currentQuestion++;
+        earthquakeCursor = 0;
+        feedbackTimer = 0;
+
+        // Finished all 5 questions
+        if (currentQuestion >= 5) {
+
+            earthquakeSolved = true;
+            gp.earthquakePuzzleSolved = true;
+
+            // Return to normal gameplay
+            gp.gameState = gp.playState;
+
+        } else {
+
+            puzzleTimer = maxPuzzleTime;
+        }
+
+    } else {
+
+        failPuzzlePenalty();
+    }
+}
     public int currentGlyphNumber = 2; 
     public boolean[] glyphSolved = {false, false, false, false, false, false}; 
     public int glyphCursor = 0;
